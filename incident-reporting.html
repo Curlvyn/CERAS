@@ -1,0 +1,233 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Incident Reporting</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <img src="images/ceras-logo.jpg" alt="CERAS logo" class="logo">
+        <span class="brand-text">CERAS</span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="about.html" class="nav-link" data-page="about">About Us</a></li>
+        <li><a href="services.html" class="nav-link" data-page="services">Response Hub</a></li>
+        <li><a href="incident-reporting.html" class="nav-link" data-page="report">Incident Reporting</a></li>
+        <li><a href="volunteer-network.html" class="nav-link" data-page="volunteers">Volunteer Network</a></li>
+        <li><a href="contact.html" class="nav-link" data-page="contact">Contact</a></li>
+        <li><a href="login.html" class="nav-link btn btn-login">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-header report-header">
+      <div class="container report-header-inner">
+        <div class="report-header-copy">
+          <span class="section-tag section-tag-light">Fast response portal</span>
+          <h1>Incident Reporting</h1>
+          <p>Send concise incident details, exact location data, and evidence so CERAS responders can act quickly and coordinate the right emergency service.</p>
+        </div>
+        <div class="report-header-visual">
+          <img src="images/incident-reporting.jpg" alt="Incident reporting interface">
+        </div>
+      </div>
+    </section>
+
+    <section class="report-form-section">
+      <div class="container">
+        <div class="report-page-shell">
+          <div class="report-primary-column">
+            <div class="report-auth-gate panel-surface" id="reportAuthGate">
+              <h2>Sign in required</h2>
+              <p>You must sign in before submitting an incident report or following up on live dispatch updates with the emergency services.</p>
+              <div class="report-auth-actions">
+                <a href="login.html" class="btn btn-primary">Sign in</a>
+                <a href="login.html" class="btn btn-secondary">Create account</a>
+              </div>
+            </div>
+
+            <div class="report-dashboard hidden panel-surface" id="reportDashboard">
+              <div class="report-dashboard-header">
+                <div>
+                  <p class="section-tag">Reporter dashboard</p>
+                  <h2>My incident activity</h2>
+                </div>
+                <span class="report-user-badge" id="reporterSignedInBadge">Signed in</span>
+              </div>
+
+              <div class="report-summary-grid">
+                <div class="report-summary-card">
+                  <span>Total reports</span>
+                  <strong id="reportSummaryTotal">0</strong>
+                </div>
+                <div class="report-summary-card">
+                  <span>Active agencies</span>
+                  <strong>4</strong>
+                </div>
+                <div class="report-summary-card">
+                  <span>Latest status</span>
+                  <strong id="reportSummaryStatus">Waiting</strong>
+                </div>
+              </div>
+
+              <div class="report-dashboard-body">
+                <div class="report-list-panel">
+                  <button class="report-list-toggle" type="button" aria-expanded="false" aria-controls="reporterReportsList">
+                    <span>My reports</span>
+                    <span class="report-list-toggle-icon">▾</span>
+                  </button>
+                  <div id="reporterReportsList" class="reporter-reports-list" aria-hidden="true"></div>
+                </div>
+
+                <div class="report-live-chat" id="reportChatPanel">
+                  <div class="report-chat-header">
+                    <h3>Live dispatch chat</h3>
+                    <select id="reportChatService" aria-label="Select service">
+                      <option value="police">Police</option>
+                      <option value="fire">Fire Service</option>
+                      <option value="ambulance">Ambulance</option>
+                      <option value="nadmo">NADMO</option>
+                    </select>
+                  </div>
+                  <div class="report-chat-thread" id="reportChatThread"></div>
+                  <form id="reportChatForm" class="report-chat-form">
+                    <input type="text" id="reportChatInput" placeholder="Send a message to the responding team..." required>
+                    <button type="submit" class="btn btn-primary btn-small">Send</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="report-form-card hidden panel-surface" id="reportFormCard">
+              <div class="report-form-topbar">
+                <div>
+                  <p class="section-tag">New report</p>
+                  <h2>Submit a new incident</h2>
+                </div>
+              </div>
+              <p class="report-intro-copy">Fill in the details below and attach any photos or evidence you have.</p>
+              <form class="report-form" action="#" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                  <label for="incidentTitle">Incident Title</label>
+                  <input type="text" id="incidentTitle" name="incidentTitle" placeholder="e.g. Flooding at Kumasi market" required>
+                </div>
+                <div class="form-group">
+                  <label for="incidentType">Incident Type</label>
+                  <select id="incidentType" name="incidentType" required>
+                    <option value="">Choose incident type</option>
+                    <option value="fire">Fire</option>
+                    <option value="flood">Flood</option>
+                    <option value="medical">Medical emergency</option>
+                    <option value="security">Security incident</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="reportService">Responding Service</label>
+                  <select id="reportService" name="reportService" required>
+                    <option value="police">Police</option>
+                    <option value="fire">Fire Service</option>
+                    <option value="ambulance">Ambulance</option>
+                    <option value="nadmo">NADMO</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="location">Location</label>
+                  <input type="text" id="location" name="location" placeholder="City, street, or landmark" required>
+                  <div class="location-tools">
+                    <button type="button" class="btn btn-secondary btn-small" id="useMyLocationBtn">Use my exact location</button>
+                    <span id="locationStatus" class="form-helper-text" aria-live="polite"></span>
+                  </div>
+                  <input type="hidden" id="incidentLatitude" name="incidentLatitude">
+                  <input type="hidden" id="incidentLongitude" name="incidentLongitude">
+                </div>
+                <div class="form-group">
+                  <label for="description">Description</label>
+                  <textarea id="description" name="description" rows="6" placeholder="Describe what happened and any important details" required></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="images">Upload Photos</label>
+                  <input type="file" id="images" name="images" accept="image/jpeg" multiple>
+                  <small>Attach one or more JPG images to help responders see the scene.</small>
+                </div>
+                <div class="form-group">
+                  <label for="contact">Contact Phone or Email</label>
+                  <input type="text" id="contact" name="contact" placeholder="030 242 4125 or name@ceras.com">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Report</button>
+                <p class="form-message" id="reportFormMessage" aria-live="polite"></p>
+              </form>
+              <p class="form-note">Please complete this form and await a prompt response from our team.</p>
+            </div>
+          </div>
+
+          <aside class="report-side-column">
+            <div class="report-info-card panel-surface hidden" id="reportInfoCard">
+              <h3>Tips for a good report</h3>
+              <ul>
+                <li>Use clear incident titles and location details.</li>
+                <li>Describe hazards, injuries, and affected areas.</li>
+                <li>Upload JPG photos with scene evidence.</li>
+                <li>Give a contact phone or email for follow-up.</li>
+                <li>Report quickly, every second helps responders.</li>
+              </ul>
+              <div class="report-side-callout">
+                <h3>Need faster help?</h3>
+                <p>If the situation is life threatening, call the emergency service numbers immediately before or after submitting the report.</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+      <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>CERAS</h3>
+        <p>Community Emergency Response and Alert System</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="services.html">Services</a>
+        <a href="incident-reporting.html">Report</a>
+        <a href="metrics.html">Metrics</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="about.html">About</a>
+        <a href="volunteer-network.html">Volunteers</a>
+        <a href="contact.html">Get Help</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>help@ceras.gov.gh</p>
+        <p>030 000 0000</p>
+      </div>
+    </div>
+    <div class="container social-row">
+      <span>Follow CERAS</span>
+      <div class="social-links">
+        <a href="https://facebook.com/cerasgh" target="_blank" rel="noreferrer" data-network="facebook" aria-label="Facebook"></a>
+        <a href="https://x.com/cerasgh" target="_blank" rel="noreferrer" data-network="twitter" aria-label="Twitter"></a>
+        <a href="https://linkedin.com/company/cerasgh" target="_blank" rel="noreferrer" data-network="linkedin" aria-label="LinkedIn"></a>
+      </div>
+    </div>
+  </footer>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+
+

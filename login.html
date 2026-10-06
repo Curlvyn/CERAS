@@ -1,0 +1,204 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login | CERAS Community Emergency Response and Alert System</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <img src="images/ceras-logo.jpg" alt="CERAS logo" class="logo">
+        CERAS
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="about.html" class="nav-link" data-page="about">About Us</a></li>
+        <li><a href="services.html" class="nav-link" data-page="services">Response Hub</a></li>
+        <li><a href="contact.html" class="nav-link" data-page="contact">Contact</a></li>
+        <li><a href="login.html" class="nav-link btn btn-login">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center;">
+          <div>
+            <h1>Sign in to CERAS</h1>
+            <p>Sign in to access the CERAS features available to your account.</p>
+          </div>
+          <img src="images/login.jpg" alt="Secure access portal" style="width: 100%; border-radius: 8px; max-height: 300px; object-fit: cover;">
+        </div>
+      </div>
+    </section>
+
+    <section class="page-content auth-page">
+      <div class="container auth-grid">
+        <div class="auth-panel">
+          <div class="auth-branding">
+            <span class="brand-chip">Secure access</span>
+            <h2>Welcome back</h2>
+          </div>
+
+          <div class="auth-switcher" role="tablist" aria-label="Authentication tabs">
+            <button type="button" class="auth-tab active" data-tab="login">Sign In</button>
+            <button type="button" class="auth-tab" data-tab="register">Create Account</button>
+          </div>
+
+          <div class="auth-box active" id="loginBox">
+            <form id="loginForm" class="auth-form">
+              <div class="form-field">
+                <label for="loginEmail">Email</label>
+                <input id="loginEmail" type="email" required placeholder="user@ceras.com">
+              </div>
+              <div class="form-field">
+                <label for="loginPassword">Password</label>
+                <input id="loginPassword" type="password" required placeholder="123456789">
+              </div>
+              <button class="btn btn-primary" type="submit">Log In</button>
+              <button class="btn btn-secondary google-login" id="googleLoginBtn" data-google-auth="signin" type="button" aria-label="Continue with Google">
+                <span class="google-logo" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="img" aria-label="Google logo" focusable="false">
+                    <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.3-1.5 3.9-5.5 3.9-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.2.8 4 1.5l2.7-2.6C16.7 3.4 14.6 2.5 12 2.5 6.9 2.5 2.7 6.7 2.7 11.8S6.9 21 12 21c6.9 0 11.5-4.8 11.5-11.6 0-.8-.1-1.4-.2-2H12z"/>
+                    <path fill="#34A853" d="M3.9 7.1l3.4 2.5c.9-1.7 2.8-2.9 4.7-2.9 1.9 0 3.2.8 4 1.5l2.7-2.6C16.7 3.4 14.6 2.5 12 2.5c-3.4 0-6.3 2-8.1 4.6z"/>
+                    <path fill="#FBBC05" d="M3.9 16.5A9.1 9.1 0 0 1 3.6 12c0-1 .2-1.9.5-2.9l3.7 2.7c-.2.6-.3 1.3-.3 2.2 0 .9.1 1.6.3 2.3l-3.7 2.7z"/>
+                    <path fill="#4285F4" d="M12 21c2.4 0 4.4-.8 5.9-2.1l-2.8-2.3c-.8.6-1.8 1-3.1 1-2.9 0-5.3-2.1-5.5-4.8l-3.7 2.8A9.1 9.1 0 0 0 12 21z"/>
+                  </svg>
+                </span>
+                <span>Continue with Google</span>
+              </button>
+
+              <div class="auth-links">
+                <a href="reset-password.html" id="forgotPasswordLink">Forgot password?</a>
+                <a href="#" id="createAccountLink">Create an account</a>
+              </div>
+
+              <div class="form-message" id="loginMessage" role="status" aria-live="polite"></div>
+            </form>
+          </div>
+
+          <div class="auth-box" id="registerBox">
+            <form id="registerForm" class="auth-form">
+              <div class="form-field">
+                <label for="registerName">Full Name</label>
+                <input id="registerName" type="text" required placeholder="rudolf Nyarko">
+              </div>
+              <div class="form-field">
+                <label for="registerEmail">Email</label>
+                <input id="registerEmail" type="email" required placeholder="rudolf@ceras.com">
+              </div>
+              <div class="form-field">
+                <label for="registerPassword">Password</label>
+                <input id="registerPassword" type="password" required placeholder="Choose a password">
+              </div>
+              <button class="btn btn-primary" type="submit">Create account</button>
+              <button class="btn btn-secondary google-login" id="googleSignupBtn" data-google-auth="signup" type="button" aria-label="Sign up with Google">
+                <span class="google-logo" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="img" aria-label="Google logo" focusable="false">
+                    <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.3-1.5 3.9-5.5 3.9-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.2.8 4 1.5l2.7-2.6C16.7 3.4 14.6 2.5 12 2.5 6.9 2.5 2.7 6.7 2.7 11.8S6.9 21 12 21c6.9 0 11.5-4.8 11.5-11.6 0-.8-.1-1.4-.2-2H12z"/>
+                    <path fill="#34A853" d="M3.9 7.1l3.4 2.5c.9-1.7 2.8-2.9 4.7-2.9 1.9 0 3.2.8 4 1.5l2.7-2.6C16.7 3.4 14.6 2.5 12 2.5c-3.4 0-6.3 2-8.1 4.6z"/>
+                    <path fill="#FBBC05" d="M3.9 16.5A9.1 9.1 0 0 1 3.6 12c0-1 .2-1.9.5-2.9l3.7 2.7c-.2.6-.3 1.3-.3 2.2 0 .9.1 1.6.3 2.3l-3.7 2.7z"/>
+                    <path fill="#4285F4" d="M12 21c2.4 0 4.4-.8 5.9-2.1l-2.8-2.3c-.8.6-1.8 1-3.1 1-2.9 0-5.3-2.1-5.5-4.8l-3.7 2.8A9.1 9.1 0 0 0 12 21z"/>
+                  </svg>
+                </span>
+                <span>Sign up with Google</span>
+              </button>
+              <p class="auth-signin-cta">
+                Already have an account? <a href="#" id="loginFromRegisterLink">Log in</a>
+              </p>
+              <div class="form-message" id="registerMessage" role="status" aria-live="polite"></div>
+            </form>
+          </div>
+        </div>
+
+        <aside class="auth-side-card">
+          <div class="auth-side-badge">Trusted by response teams</div>
+          <h3>Secure access for emergency coordination</h3>
+          <ul class="auth-side-list">
+            <li>Monitor active alerts and incident updates</li>
+            <li>View emergency reports in real time</li>
+            <li>Stay connected to the right responders</li>
+          </ul>
+          <div class="profile-summary hidden" id="profileSummary" aria-live="polite">
+            <div class="user-avatar" id="userAvatar">JD</div>
+            <div class="user-profile-meta">
+              <p class="user-role">Signed in</p>
+              <h3 id="profileName">Mark Affee</h3>
+              <p id="profileEmail">mark@example.com</p>
+              <a class="btn btn-outline" href="profile.html">View profile</a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div class="reset-modal hidden" id="resetModal" aria-modal="true" role="dialog" aria-labelledby="resetTitle">
+    <div class="reset-panel">
+      <button type="button" class="modal-close" id="closeResetModal" aria-label="Close reset password dialog">×</button>
+      <h3 id="resetTitle">Reset your password</h3>
+
+      <div id="resetStep1" class="reset-step">
+        <p>Enter your email to receive a 6-digit reset code.</p>
+        <input id="resetEmail" type="email" placeholder="you@example.com">
+        <button type="button" class="btn btn-primary" id="sendResetCode">Send code</button>
+      </div>
+
+      <div id="resetStep2" class="reset-step hidden">
+        <p>We sent a code to <strong id="resetEmailLabel"></strong>.</p>
+        <input id="resetCode" type="text" inputmode="numeric" maxlength="6" placeholder="123456">
+        <input id="newPassword" type="password" placeholder="New password">
+        <button type="button" class="btn btn-primary" id="confirmResetCode">Update password</button>
+      </div>
+
+      <div class="form-message" id="resetMessage" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+      <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>CERAS</h3>
+        <p>Community Emergency Response and Alert System</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="services.html">Services</a>
+        <a href="incident-reporting.html">Report</a>
+        <a href="metrics.html">Metrics</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="about.html">About</a>
+        <a href="volunteer-network.html">Volunteers</a>
+        <a href="contact.html">Get Help</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>help@ceras.gov.gh</p>
+        <p>030 000 0000</p>
+      </div>
+    </div>
+    <div class="container social-row">
+      <span>Follow CERAS</span>
+      <div class="social-links">
+        <a href="https://facebook.com/cerasgh" target="_blank" rel="noreferrer" data-network="facebook" aria-label="Facebook"></a>
+        <a href="https://x.com/cerasgh" target="_blank" rel="noreferrer" data-network="twitter" aria-label="Twitter"></a>
+        <a href="https://linkedin.com/company/cerasgh" target="_blank" rel="noreferrer" data-network="linkedin" aria-label="LinkedIn"></a>
+      </div>
+    </div>
+  </footer>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+
+

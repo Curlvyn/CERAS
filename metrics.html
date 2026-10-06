@@ -1,0 +1,119 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Impact Metrics | CERAS</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <img src="images/ceras-logo.jpg" alt="CERAS logo" class="logo">
+        CERAS
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="about.html" class="nav-link" data-page="about">About Us</a></li>
+        <li><a href="services.html" class="nav-link" data-page="services">Response Hub</a></li>
+        <li><a href="incident-reporting.html" class="nav-link" data-page="report">Incident Reporting</a></li>
+        <li><a href="volunteer-network.html" class="nav-link" data-page="volunteers">Volunteer Network</a></li>
+        <li><a href="contact.html" class="nav-link" data-page="contact">Contact</a></li>
+        <li><a href="login.html" class="nav-link btn btn-login">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center;">
+          <div>
+            <h1>Impact Metrics</h1>
+            <p>High-level statistics and charts showing CERAS usage and community impact.</p>
+          </div>
+          <img src="images/impact-metrics.jpg" alt="Control room operations" style="width: 100%; border-radius: 8px; max-height: 300px; object-fit: cover;">
+        </div>
+      </div>
+    </section>
+
+    <section class="page-content">
+      <div class="container">
+        <div class="metric-grid">
+          <div class="metric-card">
+            <h3>Communities covered</h3>
+            <p class="metric-number">1,250+</p>
+            <div class="metric-bar"><span style="width:75%"></span></div>
+          </div>
+          <div class="metric-card">
+            <h3>Alerts issued</h3>
+            <p class="metric-number">8,430</p>
+            <div class="metric-bar"><span style="width:60%"></span></div>
+          </div>
+          <div class="metric-card">
+            <h3>Volunteers active</h3>
+            <p class="metric-number">3,120</p>
+            <div class="metric-bar"><span style="width:48%"></span></div>
+          </div>
+          <div class="metric-card">
+            <h3>Emergency reports</h3>
+            <p class="metric-number">42,780</p>
+            <div class="metric-bar"><span style="width:90%"></span></div>
+          </div>
+        </div>
+
+        <div style="margin-top:40px">
+          <h2>Trends</h2>
+          <div class="report-chart-wrap">
+            <canvas id="reportChart" aria-label="Incident type distribution" role="img"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+      <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>CERAS</h3>
+        <p>Community Emergency Response and Alert System</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="services.html">Services</a>
+        <a href="incident-reporting.html">Report</a>
+        <a href="metrics.html">Metrics</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="about.html">About</a>
+        <a href="volunteer-network.html">Volunteers</a>
+        <a href="contact.html">Get Help</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>help@ceras.gov.gh</p>
+        <p>030 000 0000</p>
+      </div>
+    </div>
+    <div class="container social-row">
+      <span>Follow CERAS</span>
+      <div class="social-links">
+        <a href="https://facebook.com/cerasgh" target="_blank" rel="noreferrer" data-network="facebook" aria-label="Facebook"></a>
+        <a href="https://x.com/cerasgh" target="_blank" rel="noreferrer" data-network="twitter" aria-label="Twitter"></a>
+        <a href="https://linkedin.com/company/cerasgh" target="_blank" rel="noreferrer" data-network="linkedin" aria-label="LinkedIn"></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+

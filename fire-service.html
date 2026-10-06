@@ -1,0 +1,113 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fire Service | CERAS</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <img src="images/ceras-logo.jpg" alt="CERAS logo" class="logo">
+        CERAS
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="about.html" class="nav-link">About Us</a></li>
+        <li><a href="services.html" class="nav-link">Response Hub</a></li>
+        <li><a href="contact.html" class="nav-link">Contact</a></li>
+        <li><a href="login.html" class="nav-link btn btn-login">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center;">
+          <div>
+            <h1>Fire Service Dashboard</h1>
+            <p>Fire incident response, hazard assessment, and rescue coordination for active emergency operations.</p>
+          </div>
+          <img src="images/fire.jpg" alt="Fire service dashboard" style="width:100%; border-radius:8px; max-height:300px; object-fit:cover;">
+        </div>
+      </div>
+    </section>
+
+    <section class="page-content">
+      <div class="container agency-portal">
+        <div class="agency-login-panel" id="agencyLoginPanel">
+          <h2>Agency sign in</h2>
+          <form id="agencyLoginForm" class="auth-form">
+            <div class="form-field">
+              <label for="agencyEmail">Email</label>
+              <input id="agencyEmail" type="email" required placeholder="fire@ceras.gov.gh">
+            </div>
+            <div class="form-field">
+              <label for="agencyPassword">Password</label>
+              <input id="agencyPassword" type="password" required placeholder="fire123">
+            </div>
+            <button class="btn btn-primary" type="submit">Access fire service reports</button>
+            <div class="form-message" id="agencyMessage" role="status" aria-live="polite"></div>
+          </form>
+        </div>
+
+        <div class="agency-dashboard hidden" id="agencyDashboard">
+          <div class="dashboard-header">
+            <div>
+              <p class="section-tag">Operations</p>
+              <h2>Fire service reports</h2>
+            </div>
+            <button class="btn btn-secondary" id="agencyLogoutBtn" type="button">Log out</button>
+          </div>
+          <div class="report-grid agency-reports" id="agencyReports"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>CERAS</h3>
+        <p>Community Emergency Response and Alert System</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="services.html">Services</a>
+        <a href="incident-reporting.html">Report</a>
+        <a href="metrics.html">Metrics</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="about.html">About</a>
+        <a href="volunteer-network.html">Volunteers</a>
+        <a href="contact.html">Get Help</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>help@ceras.gov.gh</p>
+        <p>030 000 0000</p>
+      </div>
+    </div>
+    <div class="container social-row">
+      <span>Follow CERAS</span>
+      <div class="social-links">
+        <a href="https://facebook.com/cerasgh" target="_blank" rel="noreferrer" data-network="facebook" aria-label="Facebook"></a>
+        <a href="https://x.com/cerasgh" target="_blank" rel="noreferrer" data-network="twitter" aria-label="Twitter"></a>
+        <a href="https://linkedin.com/company/cerasgh" target="_blank" rel="noreferrer" data-network="linkedin" aria-label="LinkedIn"></a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+

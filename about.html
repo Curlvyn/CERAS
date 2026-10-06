@@ -1,0 +1,201 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>About Us Community Emergency Response and Alert System</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <img src="images/ceras-logo.jpg" alt="CERAS logo" class="logo">
+        <span class="brand-text">CERAS</span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="about.html" class="nav-link" data-page="about">About Us</a></li>
+        <li><a href="services.html" class="nav-link" data-page="services">Response Hub</a></li>
+        <li><a href="contact.html" class="nav-link" data-page="contact">Contact</a></li>
+        <li><a href="login.html" class="nav-link btn btn-login">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-header about-header">
+      <div class="container about-header-inner">
+        <div class="about-header-copy">
+          <p class="section-tag section-tag-light">Our story</p>
+          <h1>About Us</h1>
+          <p>We are building a more connected, faster, and more trusted emergency response network for communities across Ghana.</p>
+        </div>
+        <div class="about-header-visual">
+          <img src="images/profile.jpg" alt="CERAS emergency coordination team">
+        </div>
+      </div>
+    </section>
+
+    <section class="page-content about-story">
+      <div class="container">
+        <div class="about-hero">
+          <div class="about-hero-copy">
+            <p class="section-tag">What drives us</p>
+            <h2>When every second matters, communication should never fail.</h2>
+            <p>CERAS was created to close the gap between communities in distress and the emergency teams that can help. We bring together citizens, volunteers, and responders on a single platform so critical information reaches the right people quickly and clearly.</p>
+          </div>
+          <div class="about-hero-panel">
+            <div class="mini-stat">
+              <strong>24/7</strong>
+              <span>response visibility</span>
+            </div>
+            <div class="mini-stat">
+              <strong>Fast</strong>
+              <span>incident reporting</span>
+            </div>
+            <div class="mini-stat">
+              <strong>Trusted</strong>
+              <span>coordination flow</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-grid">
+          <article class="about-card accent-card">
+            <div class="card-icon">01</div>
+            <h3>Our Mission</h3>
+            <p>CERAS exists to save lives by connecting communities with rapid emergency response systems. We believe that clear communication, coordinated action, and verified information can reduce delays and improve safety outcomes during critical incidents.</p>
+          </article>
+
+          <article class="about-card">
+            <div class="card-icon">02</div>
+            <h3>Why CERAS</h3>
+            <p>Every second counts in an emergency. CERAS brings together reporting, alerts, and coordination in one place so emergency teams can respond faster and communities can stay informed when it matters most.</p>
+          </article>
+
+          <article class="about-card">
+            <div class="card-icon">03</div>
+            <h3>How it Works</h3>
+            <p>CERAS centralizes incident reporting, prioritizes alerts by urgency, and routes the right information to the most appropriate agencies. The platform supports rapid reporting, alert delivery, and shared coordination across response networks.</p>
+          </article>
+
+          <article class="about-card">
+            <div class="card-icon">04</div>
+            <h3>Our Impact</h3>
+            <p>With volunteers, local teams, and emergency partners connected, CERAS helps shorten response times, improve accountability, and create a stronger record of action for future learning and resilience.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="team-section">
+      <div class="container">
+        <div class="team-intro">
+          <div>
+            <p class="section-tag">Meet the team</p>
+            <h2>People powering CERAS</h2>
+            <p>Our team combines emergency response experts, platform engineers, and community coordinators to deliver fast, reliable alerts across Ghana.</p>
+          </div>
+        </div>
+
+        <div class="team-grid">
+          <article class="team-card" data-member="kelvin">
+            <img src="public/images/Person 1.jpg" alt="Kelvin, System Architect">
+            <div class="team-card-body">
+              <p class="role-tag">System Architect</p>
+              <h3>Obikyere Kelvin</h3>
+            </div>
+          </article>
+
+          <article class="team-card" data-member="nana">
+            <img src="public/images/Person 4.jpg" alt="Nana, Frontend Developer">
+            <div class="team-card-body">
+              <p class="role-tag">Frontend Developer</p>
+              <h3>Nana Ohenewaa</h3>
+            </div>
+          </article>
+
+          <article class="team-card" data-member="rudolf">
+            <img src="public/images/Person 3.jpg" alt="Rudolf, Communications Lead">
+            <div class="team-card-body">
+              <p class="role-tag">Communications Lead</p>
+              <h3>Nyarko Rudolf</h3>
+            </div>
+          </article>
+
+          <article class="team-card" data-member="chris">
+            <img src="public/images/Person 2.jpg" alt="Chris, Operations Analyst">
+            <div class="team-card-body">
+              <p class="role-tag">Operations Analyst</p>
+              <h3>Chris Opare</h3>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <div class="team-modal" id="teamModal" aria-hidden="true">
+      <div class="team-modal-panel">
+        <button class="modal-close" id="teamModalClose" aria-label="Close profile dialog">×</button>
+        <div class="modal-media">
+          <img src="" alt="Team member profile image" id="teamModalImage">
+        </div>
+        <div class="modal-content">
+          <p class="section-tag">Team Profile</p>
+          <h2 id="teamModalName">Name</h2>
+          <p class="role-tag" id="teamModalRole">Role</p>
+          <p id="teamModalBio">Profile description goes here.</p>
+          <div class="profile-details-list">
+            <div><strong>Email</strong><span id="teamModalEmail"></span></div>
+            <div><strong>Phone</strong><span id="teamModalPhone"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+      <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>CERAS</h3>
+        <p>Community Emergency Response and Alert System</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="services.html">Services</a>
+        <a href="incident-reporting.html">Report</a>
+        <a href="metrics.html">Metrics</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="about.html">About</a>
+        <a href="volunteer-network.html">Volunteers</a>
+        <a href="contact.html">Get Help</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>help@ceras.gov.gh</p>
+        <p>030 000 0000</p>
+      </div>
+    </div>
+    <div class="container social-row">
+      <span>Follow CERAS</span>
+      <div class="social-links">
+        <a href="https://facebook.com/cerasgh" target="_blank" rel="noreferrer" data-network="facebook" aria-label="Facebook"></a>
+        <a href="https://x.com/cerasgh" target="_blank" rel="noreferrer" data-network="twitter" aria-label="Twitter"></a>
+        <a href="https://linkedin.com/company/cerasgh" target="_blank" rel="noreferrer" data-network="linkedin" aria-label="LinkedIn"></a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+
+

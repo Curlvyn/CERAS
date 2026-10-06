@@ -1,0 +1,220 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CERAS Community Emergency Response and Alert System</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <img src="images/ceras-logo.jpg" alt="CERAS logo" class="logo">
+        <span class="brand-text">CERAS</span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="about.html" class="nav-link" data-page="about">About Us</a></li>
+        <li><a href="services.html" class="nav-link" data-page="services">Response Hub</a></li>
+        <li><a href="contact.html" class="nav-link" data-page="contact">Contact</a></li>
+        <li><a href="login.html" class="nav-link btn btn-login">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero-panel">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Emergency Response Platform</span>
+          <h1>Connecting emergencies and responders.</h1>
+          <p>Secure mobile coordination for incident reporting, public alerts, and community safety across Ghana.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="incident-reporting.html">Report an Incident</a>
+            <a class="btn btn-secondary" href="services.html">View Response Hub</a>
+          </div>
+          <div class="hero-subtext">Trusted by local safety teams, volunteer responders, and civic authorities.</div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-slideshow" id="heroSlideshow">
+            <div class="slide active">
+              <img src="images/SlideShow 1.jpg" alt="Disaster response team on duty">
+            </div>
+            <div class="slide">
+              <img src="images/SlideShow 2.jpg" alt="Emergency services coordination">
+            </div>
+            <div class="slide">
+              <img src="images/SlideShow 3.jpg" alt="CERAS emergency response platform">
+            </div>
+          </div>
+        </div>
+      </div>
+      <a class="scroll-indicator" href="#about" aria-label="Scroll to about section">
+        <span></span>
+        <strong>Scroll</strong>
+      </a>
+    </section>
+
+    <section class="section" id="about">
+      <div class="container split-grid">
+        <div class="split-media">
+          <img src="images/emergencyservices.jpg" alt="Emergency services coordination">
+        </div>
+        <div class="split-content">
+          <p class="section-tag">Why CERAS</p>
+          <h2>Designed to keep communities safer with clarity and speed.</h2>
+          <p>CERAS is a modern landing point for emergency communication in Ghana. It brings local responders, situational alerts, and volunteer coordination together in a clear, reliable workflow.</p>
+          <ul class="feature-list">
+            <li>Real-time incident visibility for teams and citizens.</li>
+            <li>Easy reporting flow with prioritized alerting.</li>
+            <li>Volunteer activation and neighborhood response tracking.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Impact Metrics moved to separate page: see footer 'Metrics' link -->
+
+    <section class="section reporting" id="reporting">
+      <div class="container section-head">
+        <p class="section-tag">Incident Reporting</p>
+        <h2>Report incidents with a clean card-based workflow.</h2>
+      </div>
+      <div class="report-grid">
+        <a href="incident-reporting.html" class="report-card">
+          <img src="images/incidentreporting.jpg" alt="Incident reporting">
+          <div>
+            <h3>Report a hazard</h3>
+            <p>Submit flood, fire, or security issues with location details.</p>
+          </div>
+        </a>
+        <a href="incident-reporting.html" class="report-card">
+          <img src="images/firstaid.jpg" alt="First aid support">
+          <div>
+            <h3>Request medical help</h3>
+            <p>Send urgent medical alerts and connect with ambulance teams.</p>
+          </div>
+        </a>
+        <a href="community-alerts.html" class="report-card">
+          <img src="images/alerts.jpg" alt="Community alert feed">
+          <div>
+            <h3>Track Alerts</h3>
+            <p>See active warnings and receive timely safety instructions.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="section section-surface" id="alerts">
+      <div class="container section-head">
+        <p class="section-tag">Alerts</p>
+        <h2>Live alert feed for safety-critical updates.</h2>
+      </div>
+      <div class="alert-feed">
+        <a href="community-alerts.html" class="alert-card alert-critical">
+          <p class="alert-label">Flood Warning</p>
+          <h3>High water levels in northern districts</h3>
+          <p>Monitor rivers, avoid low bridges, and follow evacuation routes.</p>
+        </a>
+        <a href="community-alerts.html" class="alert-card alert-warning">
+          <p class="alert-label">Fire Advisory</p>
+          <h3>Increased fire risk in urban communities</h3>
+          <p>Reduce open flames, report smoke early, and stay ready to evacuate.</p>
+        </a>
+        <a href="community-alerts.html" class="alert-card alert-info">
+          <p class="alert-label">Road Safety</p>
+          <h3>Accident response underway on the Accra-Kumasi highway</h3>
+          <p>Expect detours and maintain safe following distances.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="section" id="volunteers">
+      <div class="container section-head">
+        <p class="section-tag">Volunteer Network</p>
+        <h2>Local responders and community teams ready to mobilize.</h2>
+      </div>
+      <div class="people-grid">
+        <article class="people-card" onclick="toggleProfileModal(this)" style="cursor: pointer;">
+          <img src="images/volunteers.jpg" alt="Volunteer team">
+          <div class="profile-header">
+            <h3>Community Responders</h3>
+            <p class="profile-position">Volunteer Network</p>
+          </div>
+          <div class="profile-details" style="display: none;">
+            <p>Trained volunteers assisting with evacuations, first aid, and emergency alerts. Our community responders are available 24/7 to support emergency operations and help residents in times of crisis.</p>
+          </div>
+        </article>
+        <article class="people-card" onclick="toggleProfileModal(this)" style="cursor: pointer;">
+          <img src="images/controlRoom.jpg" alt="Control room">
+          <div class="profile-header">
+            <h3>Coordination Hubs</h3>
+            <p class="profile-position">Command Centers</p>
+          </div>
+          <div class="profile-details" style="display: none;">
+            <p>Command centers working with agencies to route response resources. Our coordination hubs provide real-time communication and resource allocation for rapid emergency response across all districts.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section cta-banner" id="cta">
+      <div class="container cta-grid">
+        <div>
+          <p class="section-tag">Ready to act</p>
+          <h2>CERAS is the alert platform for Ghana’s emergency communities.</h2>
+          <p>One system to bring responders, authorities, and citizens together during urgent incidents.</p>
+        </div>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="incident-reporting.html">Report a Threat</a>
+          <a class="btn btn-outline" href="community-alerts.html">See Current Alerts</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+        <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>CERAS</h3>
+        <p>Community Emergency Response and Alert System</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="services.html">Services</a>
+        <a href="incident-reporting.html">Report</a>
+        <a href="metrics.html">Metrics</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="about.html">About</a>
+        <a href="volunteer-network.html">Volunteers</a>
+        <a href="contact.html">Get Help</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>help@ceras.gov.gh</p>
+        <p>030 000 0000</p>
+      </div>
+    </div>
+    <div class="container social-row">
+      <span>Follow CERAS</span>
+      <div class="social-links">
+        <a href="https://facebook.com/cerasgh" target="_blank" rel="noreferrer" data-network="facebook" aria-label="Facebook"></a>
+        <a href="https://x.com/cerasgh" target="_blank" rel="noreferrer" data-network="twitter" aria-label="Twitter"></a>
+        <a href="https://linkedin.com/company/cerasgh" target="_blank" rel="noreferrer" data-network="linkedin" aria-label="LinkedIn"></a>
+      </div>
+    </div>
+  </footer>
+  <script type="module" src="/src/main.js"></script>
+  
+</body>
+</html>
+
+
