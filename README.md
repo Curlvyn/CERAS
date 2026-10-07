@@ -32,20 +32,26 @@ Deployment
 1. Deploy the backend on Render as a Node Web Service.
 2. Use `npm install` as the Render build command.
 3. Use `npm start` as the Render start command.
-4. Add `FRONTEND_ORIGIN=https://YOUR-GITHUB-USERNAME.github.io` in Render.
+4. Add `FRONTEND_ORIGIN=https://curlvyn.github.io` in Render. This is the site origin; do not include `/CERAS/`.
 5. Add strong seeded account passwords in Render. Each value must be at least 14 characters and include uppercase, lowercase, a number, and a symbol:
    - `ADMIN_PASSWORD`
    - `POLICE_PASSWORD`
    - `FIRE_PASSWORD`
    - `AMBULANCE_PASSWORD`
    - `NADMO_PASSWORD`
-6. For Google sign-in, create a Google OAuth Web Client ID and add your GitHub Pages URL to its authorized JavaScript origins.
-7. Add that same Google client ID in two places:
-   - Render environment variable: `GOOGLE_CLIENT_ID`
-   - GitHub Actions secret: `VITE_GOOGLE_CLIENT_ID` (the Pages build passes this to Google Identity Services)
-8. Add the Render URL as the GitHub Actions secret `VITE_API_URL`.
+6. Set up Google sign-in:
+   - Open [Google Cloud Credentials](https://console.cloud.google.com/apis/credentials), select or create a project, and configure the Google Auth Platform consent screen.
+   - Create an OAuth client ID with application type **Web application**.
+   - Add `https://curlvyn.github.io` under **Authorized JavaScript origins**. For local development, also add `http://localhost:5173`. Do not add `/CERAS/` or a redirect URI; this app uses the Google Identity Services popup flow.
+   - Copy the client ID (it ends in `.apps.googleusercontent.com`). The client ID is not a client secret.
+7. Set the client ID in both places, exactly the same:
+   - Render service environment: `GOOGLE_CLIENT_ID`
+   - GitHub repository **Settings → Secrets and variables → Actions → New repository secret**: name it `VITE_GOOGLE_CLIENT_ID`
+8. Add the Render URL as the GitHub Actions repository secret `VITE_API_URL`.
 9. Enable GitHub Pages with source set to GitHub Actions.
-10. Push to `main`; GitHub Actions builds `frontend/` and publishes `dist/`.
+10. Save the Render environment variables and redeploy the backend. In GitHub, open **Actions → Deploy GitHub Pages → Run workflow** (or push to `main`) to rebuild and publish the frontend with the client ID.
+
+If Google's consent screen is still in testing mode, add the Google account you will use as a test user in the Google Auth Platform audience settings.
 
 Demo accounts
 
