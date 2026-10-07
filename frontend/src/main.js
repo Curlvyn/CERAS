@@ -886,6 +886,8 @@ document.addEventListener('DOMContentLoaded', function () {
         : '<div class="admin-empty-state">No priority items yet.</div>';
     }
 
+    renderAdminIncidentMap(reports, serviceLabels);
+
     if (!reports.length) {
       reportList.innerHTML = '<div class="admin-empty-state">No reports have been submitted yet. Submit a test report to see the queue fill in.</div>';
       return;
@@ -913,6 +915,71 @@ document.addEventListener('DOMContentLoaded', function () {
         </article>
       `;
     }).join('');
+  }
+
+  function renderAdminIncidentMap(reports, serviceLabels) {
+    const mapContainer = document.getElementById('adminIncidentMap');
+    const mapCount = document.getElementById('adminMapCount');
+    if (!mapContainer) return;
+
+    const points = reports
+      .filter((report) => Number(report.latitude) && Number(report.longitude))
+      .map((report) => ({
+        title: report.title || report.type || 'Incident report',
+        service: serviceLabels[report.service] || report.service || 'Unassigned',
+        location: report.location || 'Location pending',
+        lat: Number(report.latitude),
+        lng: Number(report.longitude)
+      }));
+
+    if (mapCount) {
+      mapCount.textContent = points.length
+        ? `${points.length} mapped incident${points.length === 1 ? '' : 's'}`
+        : 'No GPS reports yet';
+    }
+
+    if (!points.length) {
+      mapContainer.dataset.ready = 'false';
+      mapContainer.innerHTML = '<div class="admin-empty-state">Map loads when reports include exact GPS coordinates. Ask reporters to use the exact location button.</div>';
+      return;
+    }
+
+    if (mapContainer._adminMap) {
+      mapContainer._adminMap.remove();
+      mapContainer._adminMap = null;
+    }
+    mapContainer.innerHTML = '';
+    mapContainer.dataset.ready = 'loading';
+
+    loadOpenMapsLibrary().then(() => {
+      if (!window.L || !mapContainer) return;
+      if (mapContainer.dataset.ready === 'true' && mapContainer._leaflet_id) return;
+
+      const { L } = window;
+      const bounds = L.latLngBounds(points.map((point) => [point.lat, point.lng]));
+      const map = L.map(mapContainer, { zoomControl: true, scrollWheelZoom: true }).fitBounds(bounds, { padding: [28, 28] });
+      mapContainer._adminMap = map;
+
+      L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${OPENMAPS_TOKEN}`, {
+        attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; OpenStreetMap contributors',
+        tileSize: 512,
+        zoomOffset: -1,
+        minZoom: 2,
+        maxZoom: 19
+      }).addTo(map);
+
+      points.forEach((point) => {
+        L.marker([point.lat, point.lng])
+          .addTo(map)
+          .bindPopup(`<strong>${escapeHtml(point.title)}</strong><br>${escapeHtml(point.service)}<br>${escapeHtml(point.location)}`);
+      });
+
+      mapContainer.dataset.ready = 'true';
+      setTimeout(() => map.invalidateSize(), 250);
+    }).catch(() => {
+      mapContainer.dataset.ready = 'false';
+      mapContainer.innerHTML = '<div class="map-load-error">Map unavailable. Please check your connection or map token.</div>';
+    });
   }
 
   googleAuthButtons.forEach((button) => {

@@ -1954,6 +1954,32 @@ button {
   font-size: 0.85rem;
   white-space: nowrap;
 }
+.admin-map-box {
+  min-height: 360px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #eef2f6;
+}
+.admin-map-box .admin-empty-state,
+.admin-map-box .map-load-error {
+  height: 360px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 24px;
+}
+.admin-map-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--ceras-text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
 .admin-agency-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
