@@ -182,21 +182,24 @@
       );
     }
 
+    function hideGoogleSlots() {
+      document.querySelectorAll('[data-google-auth]').forEach((slot) => {
+        slot.innerHTML = '';
+        slot.style.display = 'none';
+      });
+    }
+
     function initGoogleAuth() {
       const slots = document.querySelectorAll('[data-google-auth]');
       if (!slots.length) return;
 
       if (!GOOGLE_CLIENT_ID) {
-        slots.forEach((slot) => {
-          slot.innerHTML = '<button class="btn btn-secondary google-login" type="button" disabled>Google setup required</button>';
-        });
+        hideGoogleSlots();
         return;
       }
 
       if (!window.google?.accounts?.id) {
-        slots.forEach((slot) => {
-          slot.textContent = 'Loading Google sign-in...';
-        });
+        hideGoogleSlots();
         return;
       }
 
@@ -220,9 +223,7 @@
     const googleIdentityScript = document.getElementById('googleIdentityScript');
     googleIdentityScript.addEventListener('load', initGoogleAuth);
     googleIdentityScript.addEventListener('error', () => {
-      document.querySelectorAll('[data-google-auth]').forEach((slot) => {
-        slot.innerHTML = '<button class="btn btn-secondary google-login" type="button" disabled>Google sign-in unavailable</button>';
-      });
+      hideGoogleSlots();
     });
 
     async function handleGoogleCredential(response) {
