@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin Dashboard | CERAS</title>
   <link rel="stylesheet" href="css/main.css">
+  <script>
+    // Quick frontend guard check
+    const user = JSON.parse(localStorage.getItem('ceras_user'));
+    if (!user || user.role !== 'admin') {
+      alert('Access Denied');
+      window.location.href = 'login.html';
+    }
+  </script>
 </head>
 <body>
   <nav class="navbar"><div class="container navbar-container"><a href="index.html" class="navbar-brand"><img src="images/ceras-logo.jpg" alt="CERAS logo" class="logo"><span class="brand-text">CERAS</span></a><ul class="nav-menu"><li><a href="index.html" class="nav-link">Home</a></li><li><a href="services.html" class="nav-link">Response Hub</a></li><li><a href="login.html" class="nav-link btn btn-login">Logout</a></li></ul></div></nav>

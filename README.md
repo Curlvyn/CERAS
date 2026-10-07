@@ -1,37 +1,48 @@
-CERAS — Community Emergency Response and Alert System
+CERAS - Community Emergency Response and Alert System
 
-This repository contains the CERAS multi-page frontend and a small Vite development authentication/API service for the Ghana emergency response portal demo.
+This repository contains a Vite frontend for GitHub Pages and a small Node backend API for Render.
 
-Contents
+Project structure
 
-- `index.html` — Home page
-- `about.html` — About Us
-- `incident-reporting.html` — Incident reporting demo (static)
-- `community-alerts.html` — Alerts (static feed)
-- `volunteer-network.html` — Volunteer network
-- `safety-resources.html` — Safety and preparedness resources
-- `contact.html` — Contact information
-- `css/main.css` — Design system and styles
-- `src/main.js` — UI animations, navigation, session-aware controls, and alert rendering
-- `images/` — Visual assets used by the site
+- `frontend/` - Static multi-page CERAS website.
+- `frontend/src/main.js` - Shared frontend behavior and API calls.
+- `frontend/css/main.css` - Site styles.
+- `frontend/public/images/` - Site images.
+- `frontend/vite.config.js` - Vite build configuration for GitHub Pages.
+- `backend/server.js` - Node API for auth, profile updates, and report submission.
+- `.github/workflows/deploy.yml` - GitHub Pages deployment workflow.
 
-Authentication and authorization are enforced by the Vite middleware in `vite.config.js` while running locally. Sessions use HttpOnly cookies; roles are assigned by the server and protected pages/API routes reject unauthorized requests. The sample accounts are development fixtures only and must be replaced by a persistent identity provider, hashed passwords, and a real database before production deployment.
-
-Local preview
-
-Start the application through Vite so protected routes and API permissions are active:
+Local development
 
 ```powershell
 npm install
 npm run dev
 ```
 
-Opening HTML files directly or serving the built files with a static-only server bypasses the server authorization layer and is not supported for protected pages.
+Run the backend locally in a second terminal:
 
-Project notes
+```powershell
+npm run dev:api
+```
 
-- Static HTML pages are linked by the top navigation and footer.
-- `about.html` now includes the full CERAS mission and organizational background.
-- Login authenticates by email and password; the server determines the user role and destination.
-- Community users can submit reports, agency users can access only their agency dashboard, and administrators can access `admin.html`.
-- Visitors and mismatched roles receive an Access Denied response for protected URLs.
+By default, the frontend uses `http://localhost:3000` for login/register when `VITE_API_URL` is not set.
+
+Deployment
+
+1. Deploy the backend on Render as a Node Web Service.
+2. Use `npm install` as the Render build command.
+3. Use `npm start` as the Render start command.
+4. Add `FRONTEND_ORIGIN=https://YOUR-GITHUB-USERNAME.github.io` in Render.
+5. Add the Render URL as the GitHub Actions secret `VITE_API_URL`.
+6. Enable GitHub Pages with source set to GitHub Actions.
+7. Push to `main`; GitHub Actions builds `frontend/` and publishes `dist/`.
+
+Demo accounts
+
+- `admin@ceras.com` / `admin123`
+- `police@ceras.com` / `police123`
+- `fire@ceras.com` / `fire123`
+- `ambulance@ceras.com` / `ambulance123`
+- `nadmo@ceras.com` / `nadmo123`
+
+Note: the backend currently stores demo data in `backend/data/store.json`. For production, use a real database such as Postgres.

@@ -50,8 +50,8 @@
           </div>
 
           <div class="auth-switcher" role="tablist" aria-label="Authentication tabs">
-            <button type="button" class="auth-tab active" data-tab="login">Sign In</button>
-            <button type="button" class="auth-tab" data-tab="register">Create Account</button>
+            <button type="button" class="auth-tab active" data-tab="login" id="tabLoginBtn">Sign In</button>
+            <button type="button" class="auth-tab" data-tab="register" id="tabRegisterBtn">Create Account</button>
           </div>
 
           <div class="auth-box active" id="loginBox">
@@ -82,11 +82,11 @@
                 <a href="#" id="createAccountLink">Create an account</a>
               </div>
 
-              <div class="form-message" id="loginMessage" role="status" aria-live="polite"></div>
+              <div class="form-message" id="loginMessage" role="status" aria-live="polite" style="margin-top:10px; color:red; font-weight:bold;"></div>
             </form>
           </div>
 
-          <div class="auth-box" id="registerBox">
+          <div class="auth-box" id="registerBox" style="display:none;">
             <form id="registerForm" class="auth-form">
               <div class="form-field">
                 <label for="registerName">Full Name</label>
@@ -115,7 +115,7 @@
               <p class="auth-signin-cta">
                 Already have an account? <a href="#" id="loginFromRegisterLink">Log in</a>
               </p>
-              <div class="form-message" id="registerMessage" role="status" aria-live="polite"></div>
+              <div class="form-message" id="registerMessage" role="status" aria-live="polite" style="margin-top:10px; color:green; font-weight:bold;"></div>
             </form>
           </div>
         </div>
@@ -142,63 +142,118 @@
     </section>
   </main>
 
-  <div class="reset-modal hidden" id="resetModal" aria-modal="true" role="dialog" aria-labelledby="resetTitle">
-    <div class="reset-panel">
-      <button type="button" class="modal-close" id="closeResetModal" aria-label="Close reset password dialog">×</button>
-      <h3 id="resetTitle">Reset your password</h3>
+  <script type="module">
+    const BACKEND_URL = (
+      window.CERAS_API_URL ||
+      localStorage.getItem('ceras_api_url') ||
+      import.meta.env.VITE_API_URL ||
+      'http://localhost:3000'
+    ).replace(/\/$/, '');
 
-      <div id="resetStep1" class="reset-step">
-        <p>Enter your email to receive a 6-digit reset code.</p>
-        <input id="resetEmail" type="email" placeholder="you@example.com">
-        <button type="button" class="btn btn-primary" id="sendResetCode">Send code</button>
-      </div>
+    // --- Tab Switcher Logic ---
+    const tabLoginBtn = document.getElementById('tabLoginBtn');
+    const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+    const loginBox = document.getElementById('loginBox');
+    const registerBox = document.getElementById('registerBox');
+    const createAccountLink = document.getElementById('createAccountLink');
+    const loginFromRegisterLink = document.getElementById('loginFromRegisterLink');
 
-      <div id="resetStep2" class="reset-step hidden">
-        <p>We sent a code to <strong id="resetEmailLabel"></strong>.</p>
-        <input id="resetCode" type="text" inputmode="numeric" maxlength="6" placeholder="123456">
-        <input id="newPassword" type="password" placeholder="New password">
-        <button type="button" class="btn btn-primary" id="confirmResetCode">Update password</button>
-      </div>
+    function showLogin() {
+      tabLoginBtn.classList.add('active');
+      tabRegisterBtn.classList.remove('active');
+      loginBox.style.display = 'block';
+      registerBox.style.display = 'none';
+    }
 
-      <div class="form-message" id="resetMessage" role="status" aria-live="polite"></div>
-    </div>
-  </div>
+    function showRegister() {
+      tabRegisterBtn.classList.add('active');
+      tabLoginBtn.classList.remove('active');
+      registerBox.style.display = 'block';
+      loginBox.style.display = 'none';
+    }
 
-      <footer class="site-footer">
-    <div class="container footer-grid">
-      <div>
-        <h3>CERAS</h3>
-        <p>Community Emergency Response and Alert System</p>
-      </div>
-      <div>
-        <h4>Explore</h4>
-        <a href="services.html">Services</a>
-        <a href="incident-reporting.html">Report</a>
-        <a href="metrics.html">Metrics</a>
-      </div>
-      <div>
-        <h4>Support</h4>
-        <a href="about.html">About</a>
-        <a href="volunteer-network.html">Volunteers</a>
-        <a href="contact.html">Get Help</a>
-      </div>
-      <div>
-        <h4>Contact</h4>
-        <p>help@ceras.gov.gh</p>
-        <p>030 000 0000</p>
-      </div>
-    </div>
-    <div class="container social-row">
-      <span>Follow CERAS</span>
-      <div class="social-links">
-        <a href="https://facebook.com/cerasgh" target="_blank" rel="noreferrer" data-network="facebook" aria-label="Facebook"></a>
-        <a href="https://x.com/cerasgh" target="_blank" rel="noreferrer" data-network="twitter" aria-label="Twitter"></a>
-        <a href="https://linkedin.com/company/cerasgh" target="_blank" rel="noreferrer" data-network="linkedin" aria-label="LinkedIn"></a>
-      </div>
-    </div>
-  </footer>
-  <script type="module" src="/src/main.js"></script>
+    tabLoginBtn.addEventListener('click', showLogin);
+    tabRegisterBtn.addEventListener('click', showRegister);
+    createAccountLink.addEventListener('click', (e) => { e.preventDefault(); showRegister(); });
+    loginFromRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showLogin(); });
+
+    // --- Role Redirection Router ---
+    function routeUserByRole(user) {
+      if (user.role === 'admin') {
+        window.location.href = 'admin.html';
+      } else if (['nadmo', 'police', 'fire', 'ambulance'].includes(user.role)) {
+        window.location.href = 'agency-detail.html';
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    // --- Login Submission ---
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const messageDiv = document.getElementById('loginMessage');
+      
+      messageDiv.style.color = 'orange';
+      messageDiv.textContent = 'Connecting...';
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          messageDiv.style.color = 'red';
+          messageDiv.textContent = data.error || 'Invalid credentials.';
+          return;
+        }
+        localStorage.setItem('ceras_user', JSON.stringify(data.user));
+        if (data.token) localStorage.setItem('ceras_token', data.token);
+        messageDiv.style.color = 'green';
+        messageDiv.textContent = 'Success! Redirecting...';
+        routeUserByRole(data.user);
+      } catch (err) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Authentication server connection error.';
+      }
+    });
+
+    // --- Registration Submission ---
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const messageDiv = document.getElementById('registerMessage');
+
+      messageDiv.style.color = 'orange';
+      messageDiv.textContent = 'Creating account...';
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          messageDiv.style.color = 'red';
+          messageDiv.textContent = data.error || 'Registration failed.';
+          return;
+        }
+        localStorage.setItem('ceras_user', JSON.stringify(data.user));
+        if (data.token) localStorage.setItem('ceras_token', data.token);
+        messageDiv.style.color = 'green';
+        messageDiv.textContent = 'Account created! Redirecting...';
+        routeUserByRole(data.user);
+      } catch (err) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Server connection error during signup.';
+      }
+    });
+  </script>
 </body>
 </html>
-
-

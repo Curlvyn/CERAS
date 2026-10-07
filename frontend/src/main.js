@@ -169,18 +169,25 @@ document.addEventListener('DOMContentLoaded', function () {
   const OPENMAPS_TOKEN = 'sk.eyJ1IjoiY3VybHV5biIsImEiOiJjbXNjazRsOG8wa3c2MndxcDUzOGQ2N3o5In0.om3DheiXWK8FyTpabj5ZpQ';
   let openMapsLibraryPromise = null;
   let currentUser = null;
-  const authRequest = (url, options = {}) => fetch(url, { credentials: 'same-origin', ...options }).then(async (response) => {
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || 'Request failed');
-    return data;
-  });
+  const API_BASE_URL = (import.meta.env.VITE_API_URL || localStorage.getItem('ceras_api_url') || '').replace(/\/$/, '');
+  const apiUrl = (url) => `${API_BASE_URL}${url}`;
+  const authRequest = (url, options = {}) => {
+    const headers = new Headers(options.headers || {});
+    const token = localStorage.getItem('ceras_token');
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    return fetch(apiUrl(url), { ...options, headers }).then(async (response) => {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    });
+  };
 
   async function loadCurrentUser() {
     try {
       const data = await authRequest('/api/session');
       currentUser = data.user || null;
     } catch {
-      currentUser = null;
+      currentUser = JSON.parse(localStorage.getItem('ceras_user') || 'null');
     }
     updateAuthButton();
     renderProfileSummary();
@@ -202,6 +209,8 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         authRequest('/api/logout', { method: 'POST' }).finally(() => {
           currentUser = null;
+          localStorage.removeItem('ceras_token');
+          localStorage.removeItem('ceras_user');
           updateAuthButton();
           window.location.href = 'login.html';
         });
@@ -414,6 +423,8 @@ document.addEventListener('DOMContentLoaded', function () {
       try {
         const data = await authRequest('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
         currentUser = data.user;
+        localStorage.setItem('ceras_user', JSON.stringify(data.user));
+        if (data.token) localStorage.setItem('ceras_token', data.token);
         updateAuthButton();
         renderProfileSummary();
         const destinations = { admin: 'admin.html', police: 'ghana-police.html', fire: 'fire-service.html', ambulance: 'ambulance.html', nadmo: 'nadmo.html', user: 'index.html' };
@@ -439,6 +450,8 @@ document.addEventListener('DOMContentLoaded', function () {
       try {
         const data = await authRequest('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) });
         currentUser = data.user;
+        localStorage.setItem('ceras_user', JSON.stringify(data.user));
+        if (data.token) localStorage.setItem('ceras_token', data.token);
         showMessage(messageEl, 'User account created and signed in.', true);
         setTimeout(() => { window.location.href = 'index.html'; }, 700);
       } catch (error) {
