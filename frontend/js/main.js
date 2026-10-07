@@ -532,19 +532,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if (reportChatPanel) reportChatPanel.classList.add('hidden');
       if (reportInfoCard) reportInfoCard.classList.add('hidden');
 
-      if (currentUser && currentUser.role !== 'user') {
-        const redirectMap = {
-          admin: 'services.html',
-          police: 'ghana-police.html',
-          fire: 'fire-service.html',
-          ambulance: 'ambulance.html',
-          nadmo: 'nadmo.html'
-        };
-        const route = redirectMap[currentUser.role] || 'services.html';
-        setTimeout(() => {
-          window.location.href = route;
-        }, 400);
-      }
       return;
     }
 

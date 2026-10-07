@@ -202,11 +202,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateAuthButton() {
     if (!authButton) return;
+    authButton.onclick = null;
     if (currentUser) {
       authButton.textContent = 'Logout';
       authButton.href = 'login.html';
       authButton.classList.add('btn-login');
-      authButton.addEventListener('click', (event) => {
+      authButton.onclick = (event) => {
         event.preventDefault();
         authRequest('/api/logout', { method: 'POST' }).finally(() => {
           currentUser = null;
@@ -215,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
           updateAuthButton();
           window.location.href = 'login.html';
         });
-      });
+      };
     } else {
       authButton.textContent = 'Login';
       authButton.href = 'login.html';
@@ -495,19 +496,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if (reportChatPanel) reportChatPanel.classList.add('hidden');
       if (reportInfoCard) reportInfoCard.classList.add('hidden');
 
-      if (currentUser && currentUser.role !== 'user') {
-        const redirectMap = {
-          admin: 'services.html',
-          police: 'ghana-police.html',
-          fire: 'fire-service.html',
-          ambulance: 'ambulance.html',
-          nadmo: 'nadmo.html'
-        };
-        const route = redirectMap[currentUser.role] || 'services.html';
-        setTimeout(() => {
-          window.location.href = route;
-        }, 400);
-      }
       return;
     }
 
@@ -1792,9 +1780,6 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
   }
-
-  initAgencyPortal();
-  renderAgencyDetailPage();
 
   // Alert tracking dashboard logic
   const alertListContainer = document.getElementById('alertList');

@@ -181,8 +181,14 @@
     function routeUserByRole(user) {
       if (user.role === 'admin') {
         window.location.href = 'admin.html';
-      } else if (['nadmo', 'police', 'fire', 'ambulance'].includes(user.role)) {
-        window.location.href = 'agency-detail.html';
+      } else if (user.role === 'police') {
+        window.location.href = 'ghana-police.html';
+      } else if (user.role === 'fire') {
+        window.location.href = 'fire-service.html';
+      } else if (user.role === 'ambulance') {
+        window.location.href = 'ambulance.html';
+      } else if (user.role === 'nadmo') {
+        window.location.href = 'nadmo.html';
       } else {
         window.location.href = 'index.html';
       }
