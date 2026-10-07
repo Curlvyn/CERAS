@@ -10,27 +10,73 @@ const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGIN || '')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
+const PASSWORD_MIN_LENGTH = 14;
+const PASSWORD_HASH_ITERATIONS = 310000;
+const PASSWORD_HASH_ALGORITHM = 'sha256';
+const devPasswords = {
+  ADMIN_PASSWORD: 'Local-Admin-Only!2026',
+  POLICE_PASSWORD: 'Local-Police-Only!2026',
+  FIRE_PASSWORD: 'Local-Fire-Only!2026',
+  AMBULANCE_PASSWORD: 'Local-Ambulance-Only!2026',
+  NADMO_PASSWORD: 'Local-Nadmo-Only!2026'
+};
+
+function getRequiredPassword(envName) {
+  const password = process.env[envName];
+  if (!password && !isProduction) return devPasswords[envName];
+  if (!password) {
+    throw new Error(`${envName} must be set in production.`);
+  }
+  if (!isStrongPassword(password)) {
+    throw new Error(`${envName} must be at least ${PASSWORD_MIN_LENGTH} characters and include uppercase, lowercase, a number, and a symbol.`);
+  }
+  return password;
+}
+
 const defaultUsers = [
-  { name: 'Administrator', email: 'admin@ceras.com', password: 'admin123', role: 'admin' },
-  { name: 'Police Response', email: 'police@ceras.com', password: 'police123', role: 'police' },
-  { name: 'Fire Service', email: 'fire@ceras.com', password: 'fire123', role: 'fire' },
-  { name: 'Ambulance Service', email: 'ambulance@ceras.com', password: 'ambulance123', role: 'ambulance' },
-  { name: 'NADMO Response', email: 'nadmo@ceras.com', password: 'nadmo123', role: 'nadmo' }
+  { name: 'Administrator', email: 'admin@ceras.com', password: getRequiredPassword('ADMIN_PASSWORD'), role: 'admin' },
+  { name: 'Police Response', email: 'police@ceras.com', password: getRequiredPassword('POLICE_PASSWORD'), role: 'police' },
+  { name: 'Fire Service', email: 'fire@ceras.com', password: getRequiredPassword('FIRE_PASSWORD'), role: 'fire' },
+  { name: 'Ambulance Service', email: 'ambulance@ceras.com', password: getRequiredPassword('AMBULANCE_PASSWORD'), role: 'ambulance' },
+  { name: 'NADMO Response', email: 'nadmo@ceras.com', password: getRequiredPassword('NADMO_PASSWORD'), role: 'nadmo' }
 ];
 
 const sessions = new Map();
 
-function hashPassword(password, salt = randomBytes(16).toString('hex')) {
-  const hash = pbkdf2Sync(password, salt, 120000, 32, 'sha256').toString('hex');
-  return `${salt}:${hash}`;
+function hashPassword(password, salt = randomBytes(16).toString('hex'), iterations = PASSWORD_HASH_ITERATIONS) {
+  const hash = pbkdf2Sync(password, salt, iterations, 32, PASSWORD_HASH_ALGORITHM).toString('hex');
+  return `pbkdf2:${PASSWORD_HASH_ALGORITHM}:${iterations}:${salt}:${hash}`;
+}
+
+function parsePasswordHash(storedPassword) {
+  const parts = String(storedPassword || '').split(':');
+  if (parts.length === 5 && parts[0] === 'pbkdf2') {
+    const [, algorithm, iterations, salt, hash] = parts;
+    return { algorithm, iterations: Number(iterations), salt, hash };
+  }
+  if (parts.length === 2) {
+    const [salt, hash] = parts;
+    return { algorithm: 'sha256', iterations: 120000, salt, hash };
+  }
+  return null;
 }
 
 function verifyPassword(password, storedPassword) {
-  const [salt, storedHash] = storedPassword.split(':');
-  if (!salt || !storedHash) return false;
-  const candidate = pbkdf2Sync(password, salt, 120000, 32, 'sha256');
-  const expected = Buffer.from(storedHash, 'hex');
+  const parsed = parsePasswordHash(storedPassword);
+  if (!parsed?.salt || !parsed.hash || !parsed.iterations) return false;
+  const candidate = pbkdf2Sync(password, parsed.salt, parsed.iterations, 32, parsed.algorithm);
+  const expected = Buffer.from(parsed.hash, 'hex');
   return candidate.length === expected.length && timingSafeEqual(candidate, expected);
+}
+
+function needsPasswordRehash(storedPassword) {
+  const parsed = parsePasswordHash(storedPassword);
+  return (
+    !parsed ||
+    parsed.algorithm !== PASSWORD_HASH_ALGORITHM ||
+    parsed.iterations < PASSWORD_HASH_ITERATIONS
+  );
 }
 
 function publicUser(user) {
@@ -51,17 +97,57 @@ function createUser({ name, email, password, role = 'user' }) {
   };
 }
 
+function isStrongPassword(password) {
+  return (
+    typeof password === 'string' &&
+    password.length >= PASSWORD_MIN_LENGTH &&
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /\d/.test(password) &&
+    /[^A-Za-z0-9]/.test(password) &&
+    !/(password|admin|ceras|123456|qwerty)/i.test(password)
+  );
+}
+
+function ensureSeedUsers(store) {
+  let changed = false;
+  for (const seedUser of defaultUsers) {
+    const existingUser = store.users.find((user) => user.email === seedUser.email.toLowerCase());
+    if (!seedUser.password) {
+      if (existingUser) {
+        store.users = store.users.filter((user) => user.email !== seedUser.email.toLowerCase());
+        changed = true;
+      }
+      continue;
+    }
+    if (!existingUser) {
+      store.users.push(createUser(seedUser));
+      changed = true;
+      continue;
+    }
+    existingUser.name = seedUser.name;
+    existingUser.role = seedUser.role;
+    if (!verifyPassword(seedUser.password, existingUser.passwordHash) || needsPasswordRehash(existingUser.passwordHash)) {
+      existingUser.passwordHash = hashPassword(seedUser.password);
+      changed = true;
+    }
+  }
+  return changed;
+}
+
 function loadStore() {
+  let store;
   try {
-    return JSON.parse(readFileSync(DATA_FILE, 'utf8'));
+    store = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
   } catch {
-    const store = {
+    store = {
       users: defaultUsers.map(createUser),
       reports: []
     };
     saveStore(store);
-    return store;
   }
+  if (ensureSeedUsers(store)) saveStore(store);
+  return store;
 }
 
 function saveStore(store) {
@@ -142,6 +228,10 @@ const server = createServer(async (request, response) => {
         sendJson(response, 400, { error: 'Name, email, and password are required.' }, origin);
         return;
       }
+      if (!isStrongPassword(password)) {
+        sendJson(response, 400, { error: `Use at least ${PASSWORD_MIN_LENGTH} characters with uppercase, lowercase, a number, and a symbol. Avoid common words like password, admin, or CERAS.` }, origin);
+        return;
+      }
       if (store.users.some((user) => user.email === email.toLowerCase())) {
         sendJson(response, 409, { error: 'An account already exists for that email.' }, origin);
         return;
@@ -159,6 +249,10 @@ const server = createServer(async (request, response) => {
       if (!user || !verifyPassword(password || '', user.passwordHash)) {
         sendJson(response, 401, { error: 'Invalid email or password.' }, origin);
         return;
+      }
+      if (needsPasswordRehash(user.passwordHash)) {
+        user.passwordHash = hashPassword(password);
+        saveStore(store);
       }
       sendJson(response, 200, { user: publicUser(user), token: createSession(user) }, origin);
       return;

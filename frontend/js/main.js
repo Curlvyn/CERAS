@@ -152,14 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const authButton = document.querySelector('.btn-login');
   const OPENMAPS_TOKEN = 'sk.eyJ1IjoiY3VybHV5biIsImEiOiJjbXNjazRsOG8wa3c2MndxcDUzOGQ2N3o5In0.om3DheiXWK8FyTpabj5ZpQ';
   let openMapsLibraryPromise = null;
-  const defaultUsers = [
-    { name: 'Community User', email: 'user@ceras.com', password: '123456789', role: 'user' },
-    { name: 'Administrator', email: 'admin@ceras.com', password: 'admin123', role: 'admin' },
-    { name: 'NADMO Team', email: 'nadmo@ceras.gov.gh', password: 'nadmo123', role: 'nadmo' },
-    { name: 'Police Desk', email: 'police@ceras.gov.gh', password: 'police123', role: 'police' },
-    { name: 'Ambulance Desk', email: 'ambulance@ceras.gov.gh', password: 'ambulance123', role: 'ambulance' },
-    { name: 'Fire Service Desk', email: 'fire@ceras.gov.gh', password: 'fire123', role: 'fire' }
-  ];
+  const defaultUsers = [];
 
   function ensureBuiltInAccounts() {
     const storedUsers = JSON.parse(localStorage.getItem('cerasUsers') || '[]');
@@ -391,9 +384,9 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      if (!newPassword || newPassword.length < 6) {
+      if (!newPassword || newPassword.length < 14) {
         if (resetMessage) {
-          resetMessage.textContent = 'Use a password with at least 6 characters.';
+          resetMessage.textContent = 'Use a password with at least 14 characters.';
           resetMessage.style.color = 'var(--ceras-red)';
         }
         return;
@@ -879,8 +872,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       if (resetFlowStage === 'password') {
-        if (!newPassword || newPassword.length < 6) {
-          showMessage(resetFormMessage, 'Use a password with at least 6 characters.', false);
+        if (!newPassword || newPassword.length < 14) {
+          showMessage(resetFormMessage, 'Use a password with at least 14 characters.', false);
           return;
         }
 
@@ -966,10 +959,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getAgencyCredentials() {
     return {
-      nadmo: { email: 'nadmo@ceras.gov.gh', password: 'nadmo123' },
-      police: { email: 'police@ceras.gov.gh', password: 'police123' },
-      ambulance: { email: 'ambulance@ceras.gov.gh', password: 'ambulance123' },
-      fire: { email: 'fire@ceras.gov.gh', password: 'fire123' }
+      nadmo: { email: '', password: '' },
+      police: { email: '', password: '' },
+      ambulance: { email: '', password: '' },
+      fire: { email: '', password: '' }
     };
   }
 

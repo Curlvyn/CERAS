@@ -62,7 +62,7 @@
               </div>
               <div class="form-field">
                 <label for="loginPassword">Password</label>
-                <input id="loginPassword" type="password" required placeholder="123456789">
+                <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="Enter your password">
               </div>
               <button class="btn btn-primary" type="submit">Log In</button>
               <button class="btn btn-secondary google-login" id="googleLoginBtn" data-google-auth="signin" type="button" aria-label="Continue with Google">
@@ -98,7 +98,7 @@
               </div>
               <div class="form-field">
                 <label for="registerPassword">Password</label>
-                <input id="registerPassword" type="password" required placeholder="Choose a password">
+                <input id="registerPassword" type="password" required autocomplete="new-password" minlength="14" placeholder="14+ characters, mixed symbols">
               </div>
               <button class="btn btn-primary" type="submit">Create account</button>
               <button class="btn btn-secondary google-login" id="googleSignupBtn" data-google-auth="signup" type="button" aria-label="Sign up with Google">

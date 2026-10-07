@@ -398,9 +398,9 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      if (!newPassword || newPassword.length < 6) {
+      if (!newPassword || newPassword.length < 14) {
         if (resetMessage) {
-          resetMessage.textContent = 'Use a password with at least 6 characters.';
+          resetMessage.textContent = 'Use a password with at least 14 characters.';
           resetMessage.style.color = 'var(--ceras-red)';
         }
         return;
@@ -825,8 +825,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       if (resetFlowStage === 'password') {
-        if (!newPassword || newPassword.length < 6) {
-          showMessage(resetFormMessage, 'Use a password with at least 6 characters.', false);
+        if (!newPassword || newPassword.length < 14) {
+          showMessage(resetFormMessage, 'Use a password with at least 14 characters.', false);
           return;
         }
 

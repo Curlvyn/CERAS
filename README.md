@@ -33,16 +33,28 @@ Deployment
 2. Use `npm install` as the Render build command.
 3. Use `npm start` as the Render start command.
 4. Add `FRONTEND_ORIGIN=https://YOUR-GITHUB-USERNAME.github.io` in Render.
-5. Add the Render URL as the GitHub Actions secret `VITE_API_URL`.
-6. Enable GitHub Pages with source set to GitHub Actions.
-7. Push to `main`; GitHub Actions builds `frontend/` and publishes `dist/`.
+5. Add strong seeded account passwords in Render. Each value must be at least 14 characters and include uppercase, lowercase, a number, and a symbol:
+   - `ADMIN_PASSWORD`
+   - `POLICE_PASSWORD`
+   - `FIRE_PASSWORD`
+   - `AMBULANCE_PASSWORD`
+   - `NADMO_PASSWORD`
+6. Add the Render URL as the GitHub Actions secret `VITE_API_URL`.
+7. Enable GitHub Pages with source set to GitHub Actions.
+8. Push to `main`; GitHub Actions builds `frontend/` and publishes `dist/`.
 
 Demo accounts
 
-- `admin@ceras.com` / `admin123`
-- `police@ceras.com` / `police123`
-- `fire@ceras.com` / `fire123`
-- `ambulance@ceras.com` / `ambulance123`
-- `nadmo@ceras.com` / `nadmo123`
+- `admin@ceras.com` / value of `ADMIN_PASSWORD`
+- `police@ceras.com` / value of `POLICE_PASSWORD`
+- `fire@ceras.com` / value of `FIRE_PASSWORD`
+- `ambulance@ceras.com` / value of `AMBULANCE_PASSWORD`
+- `nadmo@ceras.com` / value of `NADMO_PASSWORD`
 
 Note: the backend currently stores demo data in `backend/data/store.json`. For production, use a real database such as Postgres.
+
+To create a password locally, use a password manager or run:
+
+```powershell
+node -e "console.log(require('node:crypto').randomBytes(24).toString('base64url') + 'Aa1!')"
+```
