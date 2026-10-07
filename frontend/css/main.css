@@ -3457,6 +3457,41 @@ button {
   grid-template-columns: 1.05fr 1.3fr;
   gap: 22px;
 }
+.reporter-map-panel {
+  margin: 22px 0;
+  padding: 20px;
+  background: var(--ceras-white);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 18px;
+}
+.reporter-map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.reporter-map-header h3 {
+  margin: 8px 0 0;
+}
+.reporter-map-help {
+  margin: 12px 0;
+  color: var(--ceras-text-muted);
+}
+.reporter-map-box {
+  min-height: 340px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #eef2f6;
+}
+.reporter-map-box .admin-empty-state,
+.reporter-map-box .map-load-error {
+  min-height: 340px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 24px;
+}
 .report-list-panel {
   background: var(--ceras-white);
   border-radius: 18px;

@@ -81,6 +81,18 @@
                 </div>
               </div>
 
+              <section class="reporter-map-panel" aria-label="Your incident locations">
+                <div class="reporter-map-header">
+                  <div>
+                    <span class="section-tag">Report locations</span>
+                    <h3>My incident map</h3>
+                  </div>
+                  <span id="reporterMapStatus" class="admin-map-count" aria-live="polite">Loading map...</span>
+                </div>
+                <p class="reporter-map-help">Your submitted incident locations appear here. Click the map to select a location for a new report.</p>
+                <div id="reporterIncidentMap" class="reporter-map-box" aria-label="Map of your incident locations"></div>
+              </section>
+
               <div class="report-dashboard-body">
                 <div class="report-list-panel">
                   <button class="report-list-toggle" type="button" aria-expanded="false" aria-controls="reporterReportsList">
@@ -229,5 +241,4 @@
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
-
 

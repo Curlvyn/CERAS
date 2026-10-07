@@ -167,15 +167,17 @@ document.addEventListener('DOMContentLoaded', function () {
   // Authentication support for login page and nav state
   const authButton = document.querySelector('.btn-login');
   let openMapsLibraryPromise = null;
+  let reporterMap = null;
+  let reporterLocationMarker = null;
   let currentUser = null;
-  const API_BASE_URL = (import.meta.env.VITE_API_URL || localStorage.getItem('ceras_api_url') || '').replace(/\/$/, '');
+  const API_BASE_URL = (import.meta.env.VITE_API_URL || localStorage.getItem('ceras_api_url') || 'http://localhost:3000').replace(/\/$/, '');
   const apiUrl = (url) => `${API_BASE_URL}${url}`;
   const authRequest = (url, options = {}) => {
     const headers = new Headers(options.headers || {});
     const token = localStorage.getItem('ceras_token');
     if (token) headers.set('Authorization', `Bearer ${token}`);
     return fetch(apiUrl(url), { ...options, headers }).then(async (response) => {
-      const data = await response.json().catch(() => ({}));
+      const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Request failed');
       return data;
     });
@@ -193,6 +195,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (authStatus) authStatus.textContent = currentUser ? `Signed in as ${currentUser.name} (${currentUser.role})` : 'Not signed in';
     setReporterAccessState?.();
     renderReporterReports?.();
+    if (currentUser?.role === 'user') {
+      initializeReporterLocationCapture();
+      renderReporterIncidentMap();
+    }
     loadProfileData?.();
     initAdminDashboard?.();
     initAgencyPortal?.();
@@ -427,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (data.token) localStorage.setItem('ceras_token', data.token);
         updateAuthButton();
         renderProfileSummary();
-        const destinations = { admin: 'admin.html', police: 'ghana-police.html', fire: 'fire-service.html', ambulance: 'ambulance.html', nadmo: 'nadmo.html', user: 'index.html' };
+        const destinations = { admin: 'admin.html', police: 'ghana-police.html', fire: 'fire-service.html', ambulance: 'ambulance.html', nadmo: 'nadmo.html', user: 'incident-reporting.html' };
         window.location.href = destinations[currentUser.role] || 'index.html';
       } catch (error) {
         showMessage(messageEl, error.message || 'Unable to sign in.', false);
@@ -453,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function () {
         localStorage.setItem('ceras_user', JSON.stringify(data.user));
         if (data.token) localStorage.setItem('ceras_token', data.token);
         showMessage(messageEl, 'User account created and signed in.', true);
-        setTimeout(() => { window.location.href = 'index.html'; }, 700);
+        setTimeout(() => { window.location.href = 'incident-reporting.html'; }, 700);
       } catch (error) {
         showMessage(messageEl, error.message || 'Unable to create account.', false);
       }
@@ -660,16 +666,8 @@ document.addEventListener('DOMContentLoaded', function () {
         (position) => {
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
-          latitudeField.value = latitude;
-          longitudeField.value = longitude;
-          const locationInput = document.getElementById('location');
-          if (locationInput && !locationInput.value.trim()) {
-            locationInput.value = `Lat ${latitude.toFixed(5)}, Lng ${longitude.toFixed(5)}`;
-          }
-          if (locationStatus) {
-            locationStatus.textContent = 'Location captured successfully.';
-            locationStatus.style.color = 'var(--ceras-navy)';
-          }
+          selectReporterLocation(latitude, longitude);
+          if (locationStatus) locationStatus.textContent = 'Location captured successfully.';
         },
         () => {
           if (locationStatus) {
@@ -680,6 +678,118 @@ document.addEventListener('DOMContentLoaded', function () {
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
       );
     });
+  }
+
+  function selectReporterLocation(latitude, longitude) {
+    const latitudeField = document.getElementById('incidentLatitude');
+    const longitudeField = document.getElementById('incidentLongitude');
+    const locationInput = document.getElementById('location');
+    const locationStatus = document.getElementById('locationStatus');
+    latitudeField.value = latitude;
+    longitudeField.value = longitude;
+    if (locationInput && !locationInput.value.trim()) {
+      locationInput.value = `Lat ${latitude.toFixed(5)}, Lng ${longitude.toFixed(5)}`;
+    }
+    if (locationStatus) {
+      locationStatus.textContent = 'Location selected. Add a street or landmark if known.';
+      locationStatus.style.color = 'var(--ceras-navy)';
+    }
+    if (reporterMap && window.L) {
+      if (reporterLocationMarker) reporterLocationMarker.setLatLng([latitude, longitude]);
+      else reporterLocationMarker = window.L.marker([latitude, longitude], { draggable: true }).addTo(reporterMap);
+      reporterLocationMarker.bindPopup('New report location').openPopup();
+      reporterMap.setView([latitude, longitude], Math.max(reporterMap.getZoom(), 14));
+      reporterLocationMarker.off('dragend');
+      reporterLocationMarker.on('dragend', (event) => {
+        const coordinates = event.target.getLatLng();
+        latitudeField.value = coordinates.lat;
+        longitudeField.value = coordinates.lng;
+        if (locationStatus) locationStatus.textContent = 'Marker moved to the selected incident location.';
+      });
+    }
+  }
+
+  async function renderReporterIncidentMap() {
+    const mapContainer = document.getElementById('reporterIncidentMap');
+    const mapStatus = document.getElementById('reporterMapStatus');
+    if (!mapContainer || currentUser?.role !== 'user') return;
+
+    let reports = [];
+    let usingCachedReports = false;
+    try {
+      const data = await authRequest('/api/reports');
+      reports = Array.isArray(data.reports) ? data.reports : [];
+      const allReports = JSON.parse(localStorage.getItem('cerasIncidentReports') || '[]');
+      localStorage.setItem('cerasIncidentReports', JSON.stringify([
+        ...allReports.filter((report) => report.email !== currentUser.email),
+        ...reports
+      ]));
+      renderReporterReports();
+    } catch {
+      usingCachedReports = true;
+      reports = JSON.parse(localStorage.getItem('cerasIncidentReports') || '[]')
+        .filter((report) => report.email === currentUser.email || report.reporter === currentUser.name);
+    }
+
+    const points = reports.filter((report) => {
+      const latitude = Number(report.latitude);
+      const longitude = Number(report.longitude);
+      return report.latitude !== '' && report.longitude !== '' &&
+        Number.isFinite(latitude) && Number.isFinite(longitude) &&
+        latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
+    });
+    if (mapStatus) {
+      const count = `${points.length} incident location${points.length === 1 ? '' : 's'}`;
+      mapStatus.textContent = usingCachedReports ? `${count} · API unavailable` : count;
+    }
+
+    if (reporterMap) {
+      reporterMap.remove();
+      reporterMap = null;
+      reporterLocationMarker = null;
+    }
+    mapContainer.innerHTML = '';
+    mapContainer.dataset.ready = 'loading';
+
+    try {
+      await loadOpenMapsLibrary();
+      const { L } = window;
+      reporterMap = L.map(mapContainer, { zoomControl: true, scrollWheelZoom: true });
+      if (points.length) {
+        const bounds = L.latLngBounds(points.map((point) => [Number(point.latitude), Number(point.longitude)]));
+        reporterMap.fitBounds(bounds, { padding: [28, 28], maxZoom: 14 });
+      } else {
+        reporterMap.setView([7.9465, -1.0232], 6);
+      }
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        minZoom: 2,
+        maxZoom: 19,
+        maxNativeZoom: 19
+      }).addTo(reporterMap);
+
+      points.forEach((report) => {
+        const marker = L.marker([Number(report.latitude), Number(report.longitude)]).addTo(reporterMap);
+        marker.bindPopup(`<strong>${escapeHtml(report.title || 'Incident report')}</strong><br>${escapeHtml(report.location || 'Location not provided')}<br>${escapeHtml(report.status || 'Queued')}`);
+      });
+
+      reporterMap.on('click', (event) => {
+        selectReporterLocation(event.latlng.lat, event.latlng.lng);
+      });
+
+      const latitudeField = document.getElementById('incidentLatitude');
+      const longitudeField = document.getElementById('incidentLongitude');
+      if (latitudeField?.value && longitudeField?.value) {
+        selectReporterLocation(Number(latitudeField.value), Number(longitudeField.value));
+      }
+
+      mapContainer.dataset.ready = 'true';
+      window.setTimeout(() => reporterMap?.invalidateSize(), 250);
+    } catch {
+      mapContainer.dataset.ready = 'false';
+      mapContainer.innerHTML = '<div class="map-load-error">Map unavailable. Check your internet connection and reload; you can still enter the location manually.</div>';
+    }
   }
 
   function initializeReporterReporting() {
@@ -712,16 +822,20 @@ document.addEventListener('DOMContentLoaded', function () {
         time: new Date().toLocaleString()
       };
 
+      let savedReport;
       try {
-        await authRequest('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await authRequest('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (!data.report) throw new Error('The API did not return the saved incident report.');
+        savedReport = data.report;
       } catch (error) {
         showMessage(messageEl, error.message || 'Unable to submit the report.', false);
         return;
       }
       const reports = JSON.parse(localStorage.getItem('cerasIncidentReports') || '[]');
-      reports.unshift(payload);
+      reports.unshift(savedReport);
       localStorage.setItem('cerasIncidentReports', JSON.stringify(reports));
       renderReporterReports();
+      renderReporterIncidentMap();
       showMessage(messageEl, 'Your incident report has been submitted and sent to CERAS dispatch.', true);
       form.reset();
       const locationStatus = document.getElementById('locationStatus');
@@ -1584,53 +1698,44 @@ document.addEventListener('DOMContentLoaded', function () {
     return openMapsLibraryPromise;
   }
 
-  function getAgencyFallbackPoints(pageKey) {
-    const locations = {
-      police: [
-        { name: 'Accra Central', lat: 5.5600, lng: -0.2050 },
-        { name: 'Tema', lat: 5.6640, lng: -0.0162 },
-        { name: 'Kumasi', lat: 6.6885, lng: -1.6244 }
-      ],
-      fire: [
-        { name: 'Takoradi', lat: 4.8935, lng: -1.7662 },
-        { name: 'Sunyani', lat: 7.3388, lng: -2.3263 },
-        { name: 'Wa', lat: 10.0607, lng: -2.5093 }
-      ],
-      ambulance: [
-        { name: 'Cape Coast', lat: 5.1053, lng: -1.2466 },
-        { name: 'Koforidua', lat: 6.0897, lng: -0.2603 },
-        { name: 'Ho', lat: 6.6009, lng: 0.4675 }
-      ],
-      nadmo: [
-        { name: 'Tamale', lat: 9.4070, lng: -0.8537 },
-        { name: 'Bolgatanga', lat: 10.7850, lng: -0.8510 },
-        { name: 'Bawku', lat: 11.0570, lng: -0.2416 }
-      ]
-    };
-
-    return locations[pageKey] || locations.police;
-  }
-
-  function renderAgencyMap(pageKey) {
+  async function renderAgencyMap(pageKey) {
     const mapContainer = document.getElementById(`agencyMap-${pageKey}`);
     if (!mapContainer || mapContainer.dataset.ready === 'true') return;
+    const mapStatus = document.getElementById(`agencyMapStatus-${pageKey}`);
+    let reports = [];
+    let apiUnavailable = false;
+    try {
+      const data = await authRequest('/api/reports');
+      reports = Array.isArray(data.reports) ? data.reports : [];
+    } catch {
+      apiUnavailable = true;
+    }
 
-    const allReports = JSON.parse(localStorage.getItem('cerasIncidentReports') || '[]');
-    const mappedReports = allReports.filter((report) => report.service === pageKey || (report.service === 'fire' && pageKey === 'fire') || (report.service === 'police' && pageKey === 'police') || (report.service === 'ambulance' && pageKey === 'ambulance') || (report.service === 'nadmo' && pageKey === 'nadmo'));
-    const points = mappedReports.filter((report) => Number(report.latitude) && Number(report.longitude)).map((report) => ({
-      name: report.title || report.location,
-      lat: Number(report.latitude),
-      lng: Number(report.longitude)
-    }));
+    const points = reports.filter((report) => {
+      const latitude = Number(report.latitude);
+      const longitude = Number(report.longitude);
+      return report.latitude !== '' && report.longitude !== '' &&
+        Number.isFinite(latitude) && Number.isFinite(longitude) &&
+        latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
+    });
+    if (mapStatus) {
+      mapStatus.textContent = apiUnavailable
+        ? 'Live reports unavailable'
+        : `${points.length} incident location${points.length === 1 ? '' : 's'}`;
+    }
 
-    const finalPoints = points.length ? points : getAgencyFallbackPoints(pageKey);
-
-    loadOpenMapsLibrary().then(() => {
+    try {
+      await loadOpenMapsLibrary();
       if (!window.L || !mapContainer) return;
 
       const { L } = window;
-      const bounds = L.latLngBounds(finalPoints.map((point) => [point.lat, point.lng]));
-      const map = L.map(mapContainer, { zoomControl: true, scrollWheelZoom: true }).fitBounds(bounds, { padding: [24, 24] });
+      const map = L.map(mapContainer, { zoomControl: true, scrollWheelZoom: true });
+      if (points.length) {
+        const bounds = L.latLngBounds(points.map((point) => [Number(point.latitude), Number(point.longitude)]));
+        map.fitBounds(bounds, { padding: [24, 24], maxZoom: 14 });
+      } else {
+        map.setView([7.9465, -1.0232], 6);
+      }
 
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -1639,16 +1744,16 @@ document.addEventListener('DOMContentLoaded', function () {
         maxNativeZoom: 19
       }).addTo(map);
 
-      finalPoints.forEach((point) => {
-        const marker = L.marker([point.lat, point.lng]).addTo(map);
-        marker.bindPopup(`<strong>${point.name}</strong><br>Active response area`);
+      points.forEach((report) => {
+        const marker = L.marker([Number(report.latitude), Number(report.longitude)]).addTo(map);
+        marker.bindPopup(`<strong>${escapeHtml(report.title || 'Incident report')}</strong><br>${escapeHtml(report.location || 'Location not provided')}<br>${escapeHtml(report.status || 'Queued')}`);
       });
 
       mapContainer.dataset.ready = 'true';
       setTimeout(() => map.invalidateSize(), 250);
-    }).catch(() => {
+    } catch {
       mapContainer.innerHTML = '<div class="map-load-error">Map library unavailable. Check your internet connection and reload.</div>';
-    });
+    }
   }
 
   function renderAgencyOperations() {
@@ -1743,7 +1848,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <section class="agency-card agency-map-card">
             <div class="agency-card-header">
               <h3>Incident map</h3>
-              <span>${meta.label} zones</span>
+              <span id="agencyMapStatus-${pageKey}">Loading incidents...</span>
             </div>
             <div id="agencyMap-${pageKey}" class="agency-map-box" aria-label="Map tracking view"></div>
           </section>
@@ -1919,8 +2024,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const hasActiveSession = currentUser?.role === pageKey;
     agencyLoginPanel.classList.toggle('hidden', hasActiveSession);
     agencyDashboard.classList.toggle('hidden', !hasActiveSession);
-    renderAgencyReports();
-    renderAgencyOperations();
+    if (hasActiveSession) {
+      renderAgencyReports();
+      renderAgencyOperations();
+    }
 
     agencyForm.addEventListener('submit', (event) => {
       event.preventDefault();

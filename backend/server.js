@@ -335,7 +335,14 @@ const server = createServer(async (request, response) => {
         return;
       }
       const report = await readJson(request);
-      const savedReport = { id: randomBytes(8).toString('hex'), ...report, createdAt: new Date().toISOString() };
+      const savedReport = {
+        ...report,
+        id: randomBytes(8).toString('hex'),
+        reporterId: user.id,
+        reporter: user.name,
+        email: user.email,
+        createdAt: new Date().toISOString()
+      };
       store.reports.unshift(savedReport);
       saveStore(store);
       sendJson(response, 201, { report: savedReport }, origin);
@@ -343,9 +350,33 @@ const server = createServer(async (request, response) => {
     }
 
     if (request.method === 'GET' && url.pathname === '/api/reports') {
-      const user = requireAdmin(request, response, origin);
-      if (!user) return;
-      sendJson(response, 200, { reports: store.reports }, origin);
+      const user = getSessionUser(request);
+      if (!user) {
+        sendJson(response, 401, { error: 'Please sign in first.' }, origin);
+        return;
+      }
+
+      if (user.role === 'admin') {
+        sendJson(response, 200, { reports: store.reports }, origin);
+        return;
+      }
+
+      const agencyServices = {
+        police: 'police',
+        fire: 'fire',
+        ambulance: 'ambulance',
+        nadmo: 'nadmo'
+      };
+      const userReports = user.role === 'user'
+        ? store.reports.filter((report) => report.reporterId === user.id || report.email === user.email)
+        : store.reports.filter((report) => report.service === agencyServices[user.role]);
+
+      if (user.role !== 'user' && !agencyServices[user.role]) {
+        sendJson(response, 403, { error: 'Your account cannot access incident reports.' }, origin);
+        return;
+      }
+
+      sendJson(response, 200, { reports: userReports }, origin);
       return;
     }
 
