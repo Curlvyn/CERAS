@@ -98,7 +98,8 @@
               </div>
               <div class="form-field">
                 <label for="registerPassword">Password</label>
-                <input id="registerPassword" type="password" required autocomplete="new-password" minlength="14" placeholder="14+ characters, mixed symbols">
+                <input id="registerPassword" type="password" required autocomplete="new-password" minlength="14" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{14,}" passwordrules="minlength: 14; required: lower; required: upper; required: digit; required: [-().&@?'#,/&quot;+];" title="Use at least 14 characters with uppercase, lowercase, a number, and a symbol." aria-describedby="registerPasswordHelp" placeholder="14+ characters, mixed symbols">
+                <small id="registerPasswordHelp">Use 14+ characters with uppercase, lowercase, a number, and a symbol. Avoid password, admin, CERAS, 123456, or qwerty.</small>
               </div>
               <button class="btn btn-primary" type="submit">Create account</button>
               <button class="btn btn-secondary google-login" id="googleSignupBtn" data-google-auth="signup" type="button" aria-label="Sign up with Google">
@@ -177,6 +178,39 @@
     createAccountLink.addEventListener('click', (e) => { e.preventDefault(); showRegister(); });
     loginFromRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showLogin(); });
 
+    function setMessage(element, message, color) {
+      if (!element) return;
+      element.style.color = color;
+      element.textContent = message;
+    }
+
+    function isStrongPassword(password) {
+      return (
+        typeof password === 'string' &&
+        password.length >= 14 &&
+        /[a-z]/.test(password) &&
+        /[A-Z]/.test(password) &&
+        /\d/.test(password) &&
+        /[^A-Za-z0-9]/.test(password) &&
+        !/(password|admin|ceras|123456|qwerty)/i.test(password)
+      );
+    }
+
+    document.querySelectorAll('[data-google-auth]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const messageDiv = document.getElementById(button.dataset.googleAuth === 'signup' ? 'registerMessage' : 'loginMessage');
+        const chooserUrl = `https://accounts.google.com/AccountChooser?service=mail&authuser=-1&continue=${encodeURIComponent('https://mail.google.com/mail/')}`;
+        const googleWindow = window.open(chooserUrl, '_blank', 'noopener,noreferrer,width=520,height=720');
+
+        if (googleWindow) {
+          googleWindow.focus();
+          setMessage(messageDiv, 'Google account chooser opened. Full Google sign-in still needs OAuth setup; use email and password for CERAS access.', 'var(--ceras-navy)');
+        } else {
+          setMessage(messageDiv, 'Popup blocked. Allow popups for this site, or sign in with email and password.', 'red');
+        }
+      });
+    });
+
     // --- Role Redirection Router ---
     function routeUserByRole(user) {
       if (user.role === 'admin') {
@@ -237,6 +271,12 @@
 
       messageDiv.style.color = 'orange';
       messageDiv.textContent = 'Creating account...';
+
+      if (!isStrongPassword(password)) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Use at least 14 characters with uppercase, lowercase, a number, and a symbol. Avoid password, admin, CERAS, 123456, or qwerty.';
+        return;
+      }
 
       try {
         const response = await fetch(`${BACKEND_URL}/api/register`, {
