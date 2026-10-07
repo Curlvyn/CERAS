@@ -121,6 +121,16 @@ const server = createServer(async (request, response) => {
   }
 
   try {
+    if (request.method === 'GET' && url.pathname === '/') {
+      sendJson(response, 200, {
+        ok: true,
+        service: 'CERAS API',
+        health: '/health',
+        endpoints: ['/api/register', '/api/login', '/api/session', '/api/logout', '/api/profile', '/api/reports']
+      }, origin);
+      return;
+    }
+
     if (request.method === 'GET' && url.pathname === '/health') {
       sendJson(response, 200, { ok: true, service: 'CERAS API' }, origin);
       return;
