@@ -84,6 +84,19 @@ function publicUser(user) {
   return safeUser;
 }
 
+function requireAdmin(request, response, origin) {
+  const user = getSessionUser(request);
+  if (!user) {
+    sendJson(response, 401, { error: 'Please sign in first.' }, origin);
+    return null;
+  }
+  if (user.role !== 'admin') {
+    sendJson(response, 403, { error: 'Admin access is required.' }, origin);
+    return null;
+  }
+  return user;
+}
+
 function createUser({ name, email, password, role = 'user' }) {
   return {
     id: randomBytes(8).toString('hex'),
@@ -212,7 +225,7 @@ const server = createServer(async (request, response) => {
         ok: true,
         service: 'CERAS API',
         health: '/health',
-        endpoints: ['/api/register', '/api/login', '/api/session', '/api/logout', '/api/profile', '/api/reports']
+        endpoints: ['/api/register', '/api/login', '/api/session', '/api/logout', '/api/profile', '/api/reports', '/api/admin/summary']
       }, origin);
       return;
     }
@@ -302,16 +315,26 @@ const server = createServer(async (request, response) => {
     }
 
     if (request.method === 'GET' && url.pathname === '/api/reports') {
-      const user = getSessionUser(request);
-      if (!user) {
-        sendJson(response, 401, { error: 'Please sign in first.' }, origin);
-        return;
-      }
-      if (user.role !== 'admin') {
-        sendJson(response, 403, { error: 'Admin access is required.' }, origin);
-        return;
-      }
+      const user = requireAdmin(request, response, origin);
+      if (!user) return;
       sendJson(response, 200, { reports: store.reports }, origin);
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/admin/summary') {
+      const user = requireAdmin(request, response, origin);
+      if (!user) return;
+      sendJson(response, 200, {
+        generatedAt: new Date().toISOString(),
+        users: store.users.map(publicUser),
+        reports: store.reports,
+        sessions: sessions.size,
+        security: {
+          passwordMinLength: PASSWORD_MIN_LENGTH,
+          passwordHash: `pbkdf2-${PASSWORD_HASH_ALGORITHM}`,
+          passwordHashIterations: PASSWORD_HASH_ITERATIONS
+        }
+      }, origin);
       return;
     }
 

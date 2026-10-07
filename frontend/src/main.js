@@ -776,30 +776,65 @@ document.addEventListener('DOMContentLoaded', function () {
   async function renderAdminReports() {
     const reportList = document.getElementById('adminReportList');
     const agencyGrid = document.getElementById('adminAgencyGrid');
+    const userList = document.getElementById('adminUserList');
+    const priorityList = document.getElementById('adminPriorityList');
     if (!reportList || !agencyGrid) return;
 
     reportList.innerHTML = '<div class="admin-empty-state">Loading reports...</div>';
+    if (userList) userList.innerHTML = '<div class="admin-empty-state">Loading accounts...</div>';
 
     let reports = [];
+    let users = [];
+    let sessions = 0;
+    let security = null;
+    let apiOnline = false;
+    let generatedAt = new Date().toISOString();
     try {
-      const data = await authRequest('/api/reports');
+      const data = await authRequest('/api/admin/summary');
       reports = Array.isArray(data.reports) ? data.reports : [];
+      users = Array.isArray(data.users) ? data.users : [];
+      sessions = Number(data.sessions || 0);
+      security = data.security || null;
+      generatedAt = data.generatedAt || generatedAt;
+      apiOnline = true;
     } catch {
       reports = JSON.parse(localStorage.getItem('cerasIncidentReports') || '[]');
     }
 
     const totalReports = document.getElementById('adminTotalReports');
     const queuedReports = document.getElementById('adminQueuedReports');
+    const platformStatus = document.getElementById('adminPlatformStatus');
+    const lastSync = document.getElementById('adminLastSync');
+    const commandStatus = document.getElementById('adminCommandStatus');
+    const commandSummary = document.getElementById('adminCommandSummary');
+    const passwordPolicy = document.getElementById('adminPasswordPolicy');
+    const hashPolicy = document.getElementById('adminHashPolicy');
+    const sessionCount = document.getElementById('adminSessionCount');
     const queuedCount = reports.filter((report) => (report.status || 'Queued').toLowerCase() === 'queued').length;
 
     if (totalReports) totalReports.textContent = String(reports.length);
     if (queuedReports) queuedReports.textContent = String(queuedCount);
+    if (platformStatus) platformStatus.textContent = apiOnline ? 'Live' : 'Offline';
+    if (lastSync) lastSync.textContent = apiOnline ? `Synced ${new Date(generatedAt).toLocaleTimeString()}` : 'Showing local fallback';
+    if (commandStatus) commandStatus.textContent = queuedCount ? `${queuedCount} queued report${queuedCount === 1 ? '' : 's'} need review` : 'No queued reports';
+    if (commandSummary) commandSummary.textContent = apiOnline
+      ? `Connected to the CERAS API with ${users.length || 'no'} account${users.length === 1 ? '' : 's'} loaded.`
+      : 'The dashboard is using local browser data because the API summary could not be reached.';
+    if (passwordPolicy) passwordPolicy.textContent = security ? `Strong password policy: ${security.passwordMinLength}+ characters` : 'Strong password policy active';
+    if (hashPolicy) hashPolicy.textContent = security ? `${security.passwordHash} hashing at ${security.passwordHashIterations} iterations` : 'PBKDF2 password hashing active';
+    if (sessionCount) sessionCount.textContent = `${sessions} active API session${sessions === 1 ? '' : 's'}`;
 
     const serviceLabels = {
       police: 'Police',
       fire: 'Fire',
       ambulance: 'Ambulance',
       nadmo: 'NADMO'
+    };
+    const servicePages = {
+      police: 'ghana-police.html',
+      fire: 'fire-service.html',
+      ambulance: 'ambulance.html',
+      nadmo: 'nadmo.html'
     };
 
     agencyGrid.innerHTML = Object.entries(serviceLabels).map(([key, label]) => {
@@ -809,9 +844,47 @@ document.addEventListener('DOMContentLoaded', function () {
           <span>${label}</span>
           <strong>${count}</strong>
           <p>${count === 1 ? 'report' : 'reports'} routed</p>
+          <a href="${servicePages[key]}">Open desk</a>
         </article>
       `;
     }).join('');
+
+    if (userList) {
+      if (!users.length) {
+        userList.innerHTML = '<div class="admin-empty-state">Account data is available after the API summary loads.</div>';
+      } else {
+        const roleOrder = ['admin', 'police', 'fire', 'ambulance', 'nadmo', 'user'];
+        userList.innerHTML = users
+          .slice()
+          .sort((a, b) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role))
+          .map((user) => `
+            <article class="admin-user-item">
+              <div class="user-avatar">${escapeHtml(getInitials(user.name || user.email))}</div>
+              <div>
+                <strong>${escapeHtml(user.name || 'Unnamed account')}</strong>
+                <span>${escapeHtml(user.email || 'No email')}</span>
+              </div>
+              <span class="admin-chip">${escapeHtml(user.role || 'user')}</span>
+            </article>
+          `).join('');
+      }
+    }
+
+    if (priorityList) {
+      const priorityReports = reports.filter((report) => {
+        const text = `${report.type || ''} ${report.title || ''} ${report.description || ''}`.toLowerCase();
+        return /(fire|medical|flood|crime|accident|urgent|critical|emergency)/.test(text);
+      }).slice(0, 4);
+      priorityList.innerHTML = priorityReports.length
+        ? priorityReports.map((report) => `
+          <article class="admin-priority-item">
+            <strong>${escapeHtml(report.title || report.type || 'Priority report')}</strong>
+            <span>${escapeHtml(serviceLabels[report.service] || report.service || 'Unassigned')}</span>
+            <small>${escapeHtml(report.location || 'Location pending')}</small>
+          </article>
+        `).join('')
+        : '<div class="admin-empty-state">No priority items yet.</div>';
+    }
 
     if (!reports.length) {
       reportList.innerHTML = '<div class="admin-empty-state">No reports have been submitted yet. Submit a test report to see the queue fill in.</div>';

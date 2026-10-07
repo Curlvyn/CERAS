@@ -51,7 +51,7 @@
           <a href="login.html" class="btn btn-primary">Go to sign in</a>
         </div>
 
-        <div class="admin-dashboard" id="adminDashboard">
+        <div class="admin-dashboard hidden" id="adminDashboard">
           <section class="admin-stat-grid" aria-label="Admin summary">
             <article class="admin-stat-card">
               <span>Total reports</span>
@@ -70,9 +70,21 @@
             </article>
             <article class="admin-stat-card">
               <span>Platform</span>
-              <strong>Live</strong>
-              <small>API and dashboard online</small>
+              <strong id="adminPlatformStatus">Checking</strong>
+              <small id="adminLastSync">Waiting for API</small>
             </article>
+          </section>
+
+          <section class="admin-command-strip" aria-label="Command status">
+            <div>
+              <span class="section-tag">Command status</span>
+              <h2 id="adminCommandStatus">Synchronizing dashboard</h2>
+              <p id="adminCommandSummary">Loading operational data from the CERAS API.</p>
+            </div>
+            <div class="admin-command-actions">
+              <a href="incident-reporting.html" class="btn btn-primary">Submit report</a>
+              <a href="services.html" class="btn btn-secondary">Open hub</a>
+            </div>
           </section>
 
           <section class="admin-workspace-grid">
@@ -93,6 +105,18 @@
               <article class="admin-panel">
                 <div class="admin-panel-header">
                   <div>
+                    <span class="section-tag">Responder directory</span>
+                    <h2>Account access</h2>
+                  </div>
+                </div>
+                <div class="admin-user-list" id="adminUserList">
+                  <div class="admin-empty-state">Loading accounts...</div>
+                </div>
+              </article>
+
+              <article class="admin-panel">
+                <div class="admin-panel-header">
+                  <div>
                     <span class="section-tag">Coverage</span>
                     <h2>Agency workload</h2>
                   </div>
@@ -102,6 +126,13 @@
             </div>
 
             <aside class="admin-side-column">
+              <article class="admin-panel">
+                <span class="section-tag">Priority watch</span>
+                <div class="admin-priority-list" id="adminPriorityList">
+                  <div class="admin-empty-state">No priority items yet.</div>
+                </div>
+              </article>
+
               <article class="admin-panel">
                 <span class="section-tag">Quick actions</span>
                 <div class="admin-action-list">
@@ -128,9 +159,9 @@
                 <span class="section-tag">Security</span>
                 <h2>Account status</h2>
                 <ul class="admin-check-list">
-                  <li>Seeded passwords managed by Render environment variables</li>
-                  <li>Passwords stored as PBKDF2 hashes on the API</li>
-                  <li>Admin reports endpoint protected by bearer token</li>
+                  <li id="adminPasswordPolicy">Strong password policy active</li>
+                  <li id="adminHashPolicy">PBKDF2 password hashing active</li>
+                  <li id="adminSessionCount">Loading active sessions</li>
                 </ul>
               </article>
             </aside>

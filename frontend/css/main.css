@@ -1817,6 +1817,30 @@ button {
   display: grid;
   gap: 24px;
 }
+.admin-command-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow);
+}
+.admin-command-strip h2 {
+  margin: 10px 0 6px;
+}
+.admin-command-strip p {
+  margin: 0;
+  color: var(--ceras-text-muted);
+}
+.admin-command-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
 .admin-stat-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1879,7 +1903,9 @@ button {
 .admin-report-list,
 .admin-agency-grid,
 .admin-action-list,
-.admin-check-list {
+.admin-check-list,
+.admin-user-list,
+.admin-priority-list {
   display: grid;
   gap: 14px;
 }
@@ -1937,6 +1963,13 @@ button {
   border-radius: var(--radius);
   background: linear-gradient(180deg, #ffffff, #f9fafb);
 }
+.admin-agency-card a {
+  display: inline-flex;
+  margin-top: 12px;
+  color: var(--ceras-red);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
 .admin-agency-card span {
   display: block;
   margin-bottom: 8px;
@@ -1948,6 +1981,40 @@ button {
 }
 .admin-agency-card strong {
   font-size: 1.5rem;
+}
+.admin-user-item {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: var(--radius);
+  background: rgba(15, 23, 42, 0.02);
+}
+.admin-user-item strong,
+.admin-user-item span {
+  display: block;
+}
+.admin-user-item span:not(.admin-chip) {
+  color: var(--ceras-text-muted);
+  font-size: 0.88rem;
+}
+.admin-priority-item {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(214, 40, 40, 0.14);
+  background: rgba(214, 40, 40, 0.05);
+}
+.admin-priority-item span {
+  color: var(--ceras-red);
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+.admin-priority-item small {
+  color: var(--ceras-text-muted);
 }
 .admin-action-link {
   display: grid;
@@ -2882,6 +2949,8 @@ button {
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .service-card:hover {
   transform: translateY(-4px);
@@ -2908,7 +2977,13 @@ button {
   font-size: 0.9rem;
   color: var(--ceras-text-muted);
   line-height: 1.6;
-  margin: 0;
+  margin: 0 0 18px;
+  position: relative;
+  z-index: 2;
+}
+.service-card-action {
+  width: fit-content;
+  margin-top: auto;
   position: relative;
   z-index: 2;
 }
@@ -3547,12 +3622,26 @@ button {
 @media (max-width: 720px) {
   .admin-header-inner,
   .admin-workspace-grid,
-  .admin-report-item {
+  .admin-report-item,
+  .admin-command-strip {
     grid-template-columns: 1fr;
+  }
+  .admin-command-strip {
+    display: grid;
+  }
+  .admin-command-actions {
+    justify-content: flex-start;
   }
   .admin-stat-grid,
   .admin-agency-grid {
     grid-template-columns: 1fr;
+  }
+  .admin-user-item {
+    grid-template-columns: 44px 1fr;
+  }
+  .admin-user-item .admin-chip {
+    grid-column: 1 / -1;
+    width: fit-content;
   }
   .admin-panel-header {
     flex-direction: column;
