@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Login | CERAS Community Emergency Response and Alert System</title>
   <link rel="stylesheet" href="css/main.css">
+  <script id="googleIdentityScript" src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
   <nav class="navbar" id="navbar">
@@ -65,17 +66,7 @@
                 <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="Enter your password">
               </div>
               <button class="btn btn-primary" type="submit">Log In</button>
-              <button class="btn btn-secondary google-login" id="googleLoginBtn" data-google-auth="signin" type="button" aria-label="Continue with Google">
-                <span class="google-logo" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" role="img" aria-label="Google logo" focusable="false">
-                    <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.3-1.5 3.9-5.5 3.9-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.2.8 4 1.5l2.7-2.6C16.7 3.4 14.6 2.5 12 2.5 6.9 2.5 2.7 6.7 2.7 11.8S6.9 21 12 21c6.9 0 11.5-4.8 11.5-11.6 0-.8-.1-1.4-.2-2H12z"/>
-                    <path fill="#34A853" d="M3.9 7.1l3.4 2.5c.9-1.7 2.8-2.9 4.7-2.9 1.9 0 3.2.8 4 1.5l2.7-2.6C16.7 3.4 14.6 2.5 12 2.5c-3.4 0-6.3 2-8.1 4.6z"/>
-                    <path fill="#FBBC05" d="M3.9 16.5A9.1 9.1 0 0 1 3.6 12c0-1 .2-1.9.5-2.9l3.7 2.7c-.2.6-.3 1.3-.3 2.2 0 .9.1 1.6.3 2.3l-3.7 2.7z"/>
-                    <path fill="#4285F4" d="M12 21c2.4 0 4.4-.8 5.9-2.1l-2.8-2.3c-.8.6-1.8 1-3.1 1-2.9 0-5.3-2.1-5.5-4.8l-3.7 2.8A9.1 9.1 0 0 0 12 21z"/>
-                  </svg>
-                </span>
-                <span>Continue with Google</span>
-              </button>
+              <div class="google-auth-slot" id="googleLoginBtn" data-google-auth="signin" aria-label="Continue with Google"></div>
 
               <div class="auth-links">
                 <a href="reset-password.html" id="forgotPasswordLink">Forgot password?</a>
@@ -98,21 +89,11 @@
               </div>
               <div class="form-field">
                 <label for="registerPassword">Password</label>
-                <input id="registerPassword" type="password" required autocomplete="new-password" minlength="14" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{14,}" passwordrules="minlength: 14; required: lower; required: upper; required: digit; required: [-().&@?'#,/&quot;+];" title="Use at least 14 characters with uppercase, lowercase, a number, and a symbol." aria-describedby="registerPasswordHelp" placeholder="14+ characters, mixed symbols">
-                <small id="registerPasswordHelp">Use 14+ characters with uppercase, lowercase, a number, and a symbol. Avoid password, admin, CERAS, 123456, or qwerty.</small>
+                <input id="registerPassword" type="password" required autocomplete="new-password" minlength="14" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{14,}" passwordrules="minlength: 14; required: lower; required: upper; required: digit; required: [-!@#$%^&amp;*()_+=];" title="Use at least 14 characters with uppercase, lowercase, a number, and a symbol such as !, @, #, or $." aria-describedby="registerPasswordHelp" placeholder="14+ characters, mixed symbols">
+                <small id="registerPasswordHelp">Use at least 14 characters, including uppercase and lowercase letters, a number, and a symbol such as ! @ # $ % ^ &amp; * - _ + =. Avoid password, admin, CERAS, 123456, or qwerty.</small>
               </div>
               <button class="btn btn-primary" type="submit">Create account</button>
-              <button class="btn btn-secondary google-login" id="googleSignupBtn" data-google-auth="signup" type="button" aria-label="Sign up with Google">
-                <span class="google-logo" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" role="img" aria-label="Google logo" focusable="false">
-                    <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.3-1.5 3.9-5.5 3.9-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.2.8 4 1.5l2.7-2.6C16.7 3.4 14.6 2.5 12 2.5 6.9 2.5 2.7 6.7 2.7 11.8S6.9 21 12 21c6.9 0 11.5-4.8 11.5-11.6 0-.8-.1-1.4-.2-2H12z"/>
-                    <path fill="#34A853" d="M3.9 7.1l3.4 2.5c.9-1.7 2.8-2.9 4.7-2.9 1.9 0 3.2.8 4 1.5l2.7-2.6C16.7 3.4 14.6 2.5 12 2.5c-3.4 0-6.3 2-8.1 4.6z"/>
-                    <path fill="#FBBC05" d="M3.9 16.5A9.1 9.1 0 0 1 3.6 12c0-1 .2-1.9.5-2.9l3.7 2.7c-.2.6-.3 1.3-.3 2.2 0 .9.1 1.6.3 2.3l-3.7 2.7z"/>
-                    <path fill="#4285F4" d="M12 21c2.4 0 4.4-.8 5.9-2.1l-2.8-2.3c-.8.6-1.8 1-3.1 1-2.9 0-5.3-2.1-5.5-4.8l-3.7 2.8A9.1 9.1 0 0 0 12 21z"/>
-                  </svg>
-                </span>
-                <span>Sign up with Google</span>
-              </button>
+              <div class="google-auth-slot" id="googleSignupBtn" data-google-auth="signup" aria-label="Sign up with Google"></div>
               <p class="auth-signin-cta">
                 Already have an account? <a href="#" id="loginFromRegisterLink">Log in</a>
               </p>
@@ -150,6 +131,11 @@
       import.meta.env.VITE_API_URL ||
       'http://localhost:3000'
     ).replace(/\/$/, '');
+    const GOOGLE_CLIENT_ID = (
+      window.CERAS_GOOGLE_CLIENT_ID ||
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      ''
+    ).trim();
 
     // --- Tab Switcher Logic ---
     const tabLoginBtn = document.getElementById('tabLoginBtn');
@@ -196,20 +182,75 @@
       );
     }
 
-    document.querySelectorAll('[data-google-auth]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const messageDiv = document.getElementById(button.dataset.googleAuth === 'signup' ? 'registerMessage' : 'loginMessage');
-        const chooserUrl = `https://accounts.google.com/AccountChooser?service=mail&authuser=-1&continue=${encodeURIComponent('https://mail.google.com/mail/')}`;
-        const googleWindow = window.open(chooserUrl, '_blank', 'noopener,noreferrer,width=520,height=720');
+    function initGoogleAuth() {
+      const slots = document.querySelectorAll('[data-google-auth]');
+      if (!slots.length) return;
 
-        if (googleWindow) {
-          googleWindow.focus();
-          setMessage(messageDiv, 'Google account chooser opened. Full Google sign-in still needs OAuth setup; use email and password for CERAS access.', 'var(--ceras-navy)');
-        } else {
-          setMessage(messageDiv, 'Popup blocked. Allow popups for this site, or sign in with email and password.', 'red');
-        }
+      if (!GOOGLE_CLIENT_ID) {
+        slots.forEach((slot) => {
+          slot.innerHTML = '<button class="btn btn-secondary google-login" type="button" disabled>Google setup required</button>';
+        });
+        return;
+      }
+
+      if (!window.google?.accounts?.id) {
+        slots.forEach((slot) => {
+          slot.textContent = 'Loading Google sign-in...';
+        });
+        return;
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        ux_mode: 'popup',
+        callback: handleGoogleCredential
+      });
+
+      slots.forEach((slot) => {
+        slot.innerHTML = '';
+        window.google.accounts.id.renderButton(slot, {
+          theme: 'outline',
+          size: 'large',
+          width: Math.min(slot.offsetWidth || 320, 400),
+          text: slot.dataset.googleAuth === 'signup' ? 'signup_with' : 'continue_with'
+        });
+      });
+    }
+
+    const googleIdentityScript = document.getElementById('googleIdentityScript');
+    googleIdentityScript.addEventListener('load', initGoogleAuth);
+    googleIdentityScript.addEventListener('error', () => {
+      document.querySelectorAll('[data-google-auth]').forEach((slot) => {
+        slot.innerHTML = '<button class="btn btn-secondary google-login" type="button" disabled>Google sign-in unavailable</button>';
       });
     });
+
+    async function handleGoogleCredential(response) {
+      const activeTab = registerBox.style.display === 'block' ? 'registerMessage' : 'loginMessage';
+      const messageDiv = document.getElementById(activeTab);
+      setMessage(messageDiv, 'Signing in with Google...', 'orange');
+
+      try {
+        const apiResponse = await fetch(`${BACKEND_URL}/api/google-login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: response.credential })
+        });
+        const data = await apiResponse.json();
+        if (!apiResponse.ok) {
+          setMessage(messageDiv, data.error || 'Google sign-in failed.', 'red');
+          return;
+        }
+        localStorage.setItem('ceras_user', JSON.stringify(data.user));
+        if (data.token) localStorage.setItem('ceras_token', data.token);
+        setMessage(messageDiv, 'Success! Redirecting...', 'green');
+        routeUserByRole(data.user);
+      } catch {
+        setMessage(messageDiv, 'Google sign-in could not reach the CERAS API.', 'red');
+      }
+    }
+
+    initGoogleAuth();
 
     // --- Role Redirection Router ---
     function routeUserByRole(user) {

@@ -39,9 +39,13 @@ Deployment
    - `FIRE_PASSWORD`
    - `AMBULANCE_PASSWORD`
    - `NADMO_PASSWORD`
-6. Add the Render URL as the GitHub Actions secret `VITE_API_URL`.
-7. Enable GitHub Pages with source set to GitHub Actions.
-8. Push to `main`; GitHub Actions builds `frontend/` and publishes `dist/`.
+6. For Google sign-in, create a Google OAuth Web Client ID and add your GitHub Pages URL to its authorized JavaScript origins.
+7. Add that same Google client ID in two places:
+   - Render environment variable: `GOOGLE_CLIENT_ID`
+   - GitHub Actions secret: `VITE_GOOGLE_CLIENT_ID` (the Pages build passes this to Google Identity Services)
+8. Add the Render URL as the GitHub Actions secret `VITE_API_URL`.
+9. Enable GitHub Pages with source set to GitHub Actions.
+10. Push to `main`; GitHub Actions builds `frontend/` and publishes `dist/`.
 
 Demo accounts
 
