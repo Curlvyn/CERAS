@@ -5,18 +5,141 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin Dashboard | CERAS</title>
   <link rel="stylesheet" href="css/main.css">
-  <script>
-    // Quick frontend guard check
-    const user = JSON.parse(localStorage.getItem('ceras_user'));
-    if (!user || user.role !== 'admin') {
-      alert('Access Denied');
-      window.location.href = 'login.html';
-    }
-  </script>
 </head>
 <body>
-  <nav class="navbar"><div class="container navbar-container"><a href="index.html" class="navbar-brand"><img src="images/ceras-logo.jpg" alt="CERAS logo" class="logo"><span class="brand-text">CERAS</span></a><ul class="nav-menu"><li><a href="index.html" class="nav-link">Home</a></li><li><a href="services.html" class="nav-link">Response Hub</a></li><li><a href="login.html" class="nav-link btn btn-login">Logout</a></li></ul></div></nav>
-  <main><section class="page-header"><div class="container"><h1>Admin Dashboard</h1><p>Authorized system administration tools.</p></div></section><section class="page-content"><div class="container"><div class="panel-surface"><h2>Administration</h2><p>Administrative controls are available to authorized administrators only.</p></div></div></section></main>
+  <nav class="navbar" id="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <img src="images/ceras-logo.jpg" alt="CERAS logo" class="logo">
+        <span class="brand-text">CERAS</span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="services.html" class="nav-link">Response Hub</a></li>
+        <li><a href="incident-reporting.html" class="nav-link">Reports</a></li>
+        <li><a href="login.html" class="nav-link btn btn-login">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="admin-page">
+    <section class="page-header admin-header">
+      <div class="container admin-header-inner">
+        <div>
+          <span class="section-tag section-tag-light">System command</span>
+          <h1>Admin Dashboard</h1>
+          <p>Monitor CERAS activity, response queues, and agency coverage from one workspace.</p>
+        </div>
+        <div class="admin-header-card">
+          <span>Signed in</span>
+          <strong id="adminName">Administrator</strong>
+          <small id="adminEmail">admin@ceras.com</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-content admin-content">
+      <div class="container">
+        <div class="admin-access-message hidden" id="adminAccessMessage">
+          <h2>Admin access required</h2>
+          <p>Please sign in with the CERAS administrator account to open this dashboard.</p>
+          <a href="login.html" class="btn btn-primary">Go to sign in</a>
+        </div>
+
+        <div class="admin-dashboard" id="adminDashboard">
+          <section class="admin-stat-grid" aria-label="Admin summary">
+            <article class="admin-stat-card">
+              <span>Total reports</span>
+              <strong id="adminTotalReports">0</strong>
+              <small>Submitted through CERAS</small>
+            </article>
+            <article class="admin-stat-card">
+              <span>Queued</span>
+              <strong id="adminQueuedReports">0</strong>
+              <small>Awaiting assignment</small>
+            </article>
+            <article class="admin-stat-card">
+              <span>Agencies</span>
+              <strong>4</strong>
+              <small>Connected response desks</small>
+            </article>
+            <article class="admin-stat-card">
+              <span>Platform</span>
+              <strong>Live</strong>
+              <small>API and dashboard online</small>
+            </article>
+          </section>
+
+          <section class="admin-workspace-grid">
+            <div class="admin-main-column">
+              <article class="admin-panel">
+                <div class="admin-panel-header">
+                  <div>
+                    <span class="section-tag">Incident queue</span>
+                    <h2>Latest submitted reports</h2>
+                  </div>
+                  <button class="btn btn-secondary btn-small" type="button" id="adminRefreshReports">Refresh</button>
+                </div>
+                <div class="admin-report-list" id="adminReportList">
+                  <div class="admin-empty-state">Loading reports...</div>
+                </div>
+              </article>
+
+              <article class="admin-panel">
+                <div class="admin-panel-header">
+                  <div>
+                    <span class="section-tag">Coverage</span>
+                    <h2>Agency workload</h2>
+                  </div>
+                </div>
+                <div class="admin-agency-grid" id="adminAgencyGrid"></div>
+              </article>
+            </div>
+
+            <aside class="admin-side-column">
+              <article class="admin-panel">
+                <span class="section-tag">Quick actions</span>
+                <div class="admin-action-list">
+                  <a href="services.html" class="admin-action-link">
+                    <strong>Open response hub</strong>
+                    <span>Review agency dashboards</span>
+                  </a>
+                  <a href="incident-reporting.html" class="admin-action-link">
+                    <strong>Submit test report</strong>
+                    <span>Verify the reporting flow</span>
+                  </a>
+                  <a href="metrics.html" class="admin-action-link">
+                    <strong>View metrics</strong>
+                    <span>Check public performance stats</span>
+                  </a>
+                  <a href="profile.html" class="admin-action-link">
+                    <strong>Admin profile</strong>
+                    <span>Update account details</span>
+                  </a>
+                </div>
+              </article>
+
+              <article class="admin-panel">
+                <span class="section-tag">Security</span>
+                <h2>Account status</h2>
+                <ul class="admin-check-list">
+                  <li>Seeded passwords managed by Render environment variables</li>
+                  <li>Passwords stored as PBKDF2 hashes on the API</li>
+                  <li>Admin reports endpoint protected by bearer token</li>
+                </ul>
+              </article>
+            </aside>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

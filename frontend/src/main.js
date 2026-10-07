@@ -195,6 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setReporterAccessState?.();
     renderReporterReports?.();
     loadProfileData?.();
+    initAdminDashboard?.();
     initAgencyPortal?.();
     renderAgencyDetailPage?.();
   }
@@ -748,6 +749,110 @@ document.addEventListener('DOMContentLoaded', function () {
   renderReporterReports();
   initializeReporterChat();
   initializeReporterReporting();
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[character]));
+  }
+
+  async function initAdminDashboard() {
+    const dashboard = document.getElementById('adminDashboard');
+    const accessMessage = document.getElementById('adminAccessMessage');
+    if (!dashboard || !accessMessage) return;
+
+    const isAdmin = currentUser?.role === 'admin';
+    dashboard.classList.toggle('hidden', !isAdmin);
+    accessMessage.classList.toggle('hidden', isAdmin);
+
+    if (!isAdmin) return;
+
+    const adminName = document.getElementById('adminName');
+    const adminEmail = document.getElementById('adminEmail');
+    if (adminName) adminName.textContent = currentUser.name || 'Administrator';
+    if (adminEmail) adminEmail.textContent = currentUser.email || 'admin@ceras.com';
+
+    await renderAdminReports();
+
+    const refreshButton = document.getElementById('adminRefreshReports');
+    if (refreshButton && !refreshButton.dataset.bound) {
+      refreshButton.dataset.bound = 'true';
+      refreshButton.addEventListener('click', renderAdminReports);
+    }
+  }
+
+  async function renderAdminReports() {
+    const reportList = document.getElementById('adminReportList');
+    const agencyGrid = document.getElementById('adminAgencyGrid');
+    if (!reportList || !agencyGrid) return;
+
+    reportList.innerHTML = '<div class="admin-empty-state">Loading reports...</div>';
+
+    let reports = [];
+    try {
+      const data = await authRequest('/api/reports');
+      reports = Array.isArray(data.reports) ? data.reports : [];
+    } catch {
+      reports = JSON.parse(localStorage.getItem('cerasIncidentReports') || '[]');
+    }
+
+    const totalReports = document.getElementById('adminTotalReports');
+    const queuedReports = document.getElementById('adminQueuedReports');
+    const queuedCount = reports.filter((report) => (report.status || 'Queued').toLowerCase() === 'queued').length;
+
+    if (totalReports) totalReports.textContent = String(reports.length);
+    if (queuedReports) queuedReports.textContent = String(queuedCount);
+
+    const serviceLabels = {
+      police: 'Police',
+      fire: 'Fire',
+      ambulance: 'Ambulance',
+      nadmo: 'NADMO'
+    };
+
+    agencyGrid.innerHTML = Object.entries(serviceLabels).map(([key, label]) => {
+      const count = reports.filter((report) => report.service === key).length;
+      return `
+        <article class="admin-agency-card">
+          <span>${label}</span>
+          <strong>${count}</strong>
+          <p>${count === 1 ? 'report' : 'reports'} routed</p>
+        </article>
+      `;
+    }).join('');
+
+    if (!reports.length) {
+      reportList.innerHTML = '<div class="admin-empty-state">No reports have been submitted yet. Submit a test report to see the queue fill in.</div>';
+      return;
+    }
+
+    reportList.innerHTML = reports.slice(0, 8).map((report) => {
+      const service = serviceLabels[report.service] || report.service || 'Unassigned';
+      const title = report.title || report.type || 'Incident report';
+      const location = report.location || 'Location not provided';
+      const details = report.description || report.summary || 'No description provided.';
+      const submittedAt = report.createdAt || report.time || 'Recently';
+      return `
+        <article class="admin-report-item">
+          <div>
+            <h3>${escapeHtml(title)}</h3>
+            <p>${escapeHtml(location)}</p>
+            <p>${escapeHtml(details)}</p>
+            <div class="admin-report-meta">
+              <span class="admin-chip alert">${escapeHtml(report.status || 'Queued')}</span>
+              <span class="admin-chip">${escapeHtml(service)}</span>
+              ${report.reporter ? `<span class="admin-chip">${escapeHtml(report.reporter)}</span>` : ''}
+            </div>
+          </div>
+          <time class="admin-report-time">${escapeHtml(submittedAt)}</time>
+        </article>
+      `;
+    }).join('');
+  }
 
   googleAuthButtons.forEach((button) => {
     button.addEventListener('click', () => {

@@ -301,6 +301,20 @@ const server = createServer(async (request, response) => {
       return;
     }
 
+    if (request.method === 'GET' && url.pathname === '/api/reports') {
+      const user = getSessionUser(request);
+      if (!user) {
+        sendJson(response, 401, { error: 'Please sign in first.' }, origin);
+        return;
+      }
+      if (user.role !== 'admin') {
+        sendJson(response, 403, { error: 'Admin access is required.' }, origin);
+        return;
+      }
+      sendJson(response, 200, { reports: store.reports }, origin);
+      return;
+    }
+
     sendJson(response, 404, { error: 'Route not found.' }, origin);
   } catch (error) {
     sendJson(response, 500, { error: 'Server error. Please try again.' }, origin);
