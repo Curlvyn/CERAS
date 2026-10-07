@@ -150,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Authentication support for login page and nav state
   const authButton = document.querySelector('.btn-login');
-  const OPENMAPS_TOKEN = 'sk.eyJ1IjoiY3VybHV5biIsImEiOiJjbXNjazRsOG8wa3c2MndxcDUzOGQ2N3o5In0.om3DheiXWK8FyTpabj5ZpQ';
   let openMapsLibraryPromise = null;
   const defaultUsers = [];
 
@@ -263,7 +262,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
-  const googleLoginBtn = document.getElementById('googleLoginBtn');
   const forgotPasswordLink = document.getElementById('forgotPasswordLink');
   const createAccountLink = document.getElementById('createAccountLink');
   const resetModal = document.getElementById('resetModal');
@@ -769,24 +767,6 @@ document.addEventListener('DOMContentLoaded', function () {
   renderReporterReports();
   initializeReporterChat();
   initializeReporterReporting();
-
-  if (googleLoginBtn) {
-    googleLoginBtn.addEventListener('click', () => {
-      const googleAuthUrl = 'https://accounts.google.com/';
-      const googleWindow = window.open(googleAuthUrl, '_blank', 'noopener,noreferrer,width=520,height=720');
-
-      if (googleWindow) {
-        googleWindow.focus();
-      }
-
-      const messageEl = document.getElementById('loginMessage');
-      showMessage(messageEl, 'Google sign-in opened in a new tab. Complete the sign-in there to continue.', true);
-
-      if (authStatus) {
-        authStatus.textContent = 'Google sign-in in progress...';
-      }
-    });
-  }
 
   const resetPasswordForm = document.getElementById('resetPasswordForm');
   if (resetPasswordForm) {
@@ -1435,12 +1415,11 @@ document.addEventListener('DOMContentLoaded', function () {
       const bounds = L.latLngBounds(finalPoints.map((point) => [point.lat, point.lng]));
       const map = L.map(mapContainer, { zoomControl: true, scrollWheelZoom: true }).fitBounds(bounds, { padding: [24, 24] });
 
-      L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${OPENMAPS_TOKEN}`, {
-        attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; OpenStreetMap contributors',
-        tileSize: 512,
-        zoomOffset: -1,
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         minZoom: 2,
-        maxZoom: 19
+        maxZoom: 19,
+        maxNativeZoom: 19
       }).addTo(map);
 
       finalPoints.forEach((point) => {

@@ -166,7 +166,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Authentication support for login page and nav state
   const authButton = document.querySelector('.btn-login');
-  const OPENMAPS_TOKEN = 'sk.eyJ1IjoiY3VybHV5biIsImEiOiJjbXNjazRsOG8wa3c2MndxcDUzOGQ2N3o5In0.om3DheiXWK8FyTpabj5ZpQ';
   let openMapsLibraryPromise = null;
   let currentUser = null;
   const API_BASE_URL = (import.meta.env.VITE_API_URL || localStorage.getItem('ceras_api_url') || '').replace(/\/$/, '');
@@ -289,7 +288,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
-  const googleAuthButtons = document.querySelectorAll('[data-google-auth]');
   const forgotPasswordLink = document.getElementById('forgotPasswordLink');
   const createAccountLink = document.getElementById('createAccountLink');
   const resetModal = document.getElementById('resetModal');
@@ -778,13 +776,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const agencyGrid = document.getElementById('adminAgencyGrid');
     const userList = document.getElementById('adminUserList');
     const priorityList = document.getElementById('adminPriorityList');
+    const auditList = document.getElementById('adminAuditList');
     if (!reportList || !agencyGrid) return;
 
     reportList.innerHTML = '<div class="admin-empty-state">Loading reports...</div>';
     if (userList) userList.innerHTML = '<div class="admin-empty-state">Loading accounts...</div>';
+    if (auditList) auditList.innerHTML = '<div class="admin-empty-state">Loading audit trail...</div>';
 
     let reports = [];
     let users = [];
+    let auditLogs = [];
     let sessions = 0;
     let security = null;
     let apiOnline = false;
@@ -793,6 +794,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const data = await authRequest('/api/admin/summary');
       reports = Array.isArray(data.reports) ? data.reports : [];
       users = Array.isArray(data.users) ? data.users : [];
+      auditLogs = Array.isArray(data.auditLogs) ? data.auditLogs : [];
       sessions = Number(data.sessions || 0);
       security = data.security || null;
       generatedAt = data.generatedAt || generatedAt;
@@ -886,6 +888,31 @@ document.addEventListener('DOMContentLoaded', function () {
         : '<div class="admin-empty-state">No priority items yet.</div>';
     }
 
+    if (auditList) {
+      if (!auditLogs.length) {
+        auditList.innerHTML = '<div class="admin-empty-state">No account activity recorded yet.</div>';
+      } else {
+        auditList.innerHTML = auditLogs.slice(0, 8).map((entry) => {
+          const name = entry.name || entry.userName || 'Unknown user';
+          const email = entry.email || 'unknown@ceras.local';
+          const type = (entry.eventType || 'activity').replace(/_/g, ' ');
+          const source = entry.source || 'system';
+          const createdAt = entry.createdAt ? new Date(entry.createdAt).toLocaleString() : 'Recent activity';
+          return `
+            <article class="admin-audit-item">
+              <div class="admin-report-meta">
+                <span class="admin-chip">${escapeHtml(type)}</span>
+                <span class="admin-chip">${escapeHtml(source)}</span>
+              </div>
+              <strong>${escapeHtml(name)}</strong>
+              <span>${escapeHtml(email)}</span>
+              <small>${escapeHtml(createdAt)}</small>
+            </article>
+          `;
+        }).join('');
+      }
+    }
+
     renderAdminIncidentMap(reports, serviceLabels);
 
     if (!reports.length) {
@@ -923,7 +950,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!mapContainer) return;
 
     const points = reports
-      .filter((report) => Number(report.latitude) && Number(report.longitude))
+      .filter((report) => {
+        const latitude = Number(report.latitude);
+        const longitude = Number(report.longitude);
+        return Number.isFinite(latitude) && Number.isFinite(longitude) &&
+          latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180 &&
+          report.latitude !== '' && report.longitude !== '';
+      })
       .map((report) => ({
         title: report.title || report.type || 'Incident report',
         service: serviceLabels[report.service] || report.service || 'Unassigned',
@@ -932,40 +965,37 @@ document.addEventListener('DOMContentLoaded', function () {
         lng: Number(report.longitude)
       }));
 
+    if (mapContainer._adminMap) {
+      mapContainer._adminMap.remove();
+      mapContainer._adminMap = null;
+    }
     if (mapCount) {
       mapCount.textContent = points.length
         ? `${points.length} mapped incident${points.length === 1 ? '' : 's'}`
         : 'No GPS reports yet';
     }
 
-    if (!points.length) {
-      mapContainer.dataset.ready = 'false';
-      mapContainer.innerHTML = '<div class="admin-empty-state">Map loads when reports include exact GPS coordinates. Ask reporters to use the exact location button.</div>';
-      return;
-    }
-
-    if (mapContainer._adminMap) {
-      mapContainer._adminMap.remove();
-      mapContainer._adminMap = null;
-    }
     mapContainer.innerHTML = '';
     mapContainer.dataset.ready = 'loading';
 
     loadOpenMapsLibrary().then(() => {
       if (!window.L || !mapContainer) return;
-      if (mapContainer.dataset.ready === 'true' && mapContainer._leaflet_id) return;
 
       const { L } = window;
-      const bounds = L.latLngBounds(points.map((point) => [point.lat, point.lng]));
-      const map = L.map(mapContainer, { zoomControl: true, scrollWheelZoom: true }).fitBounds(bounds, { padding: [28, 28] });
+      const map = L.map(mapContainer, { zoomControl: true, scrollWheelZoom: true });
       mapContainer._adminMap = map;
+      if (points.length) {
+        const bounds = L.latLngBounds(points.map((point) => [point.lat, point.lng]));
+        map.fitBounds(bounds, { padding: [28, 28] });
+      } else {
+        map.setView([7.9465, -1.0232], 6);
+      }
 
-      L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${OPENMAPS_TOKEN}`, {
-        attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; OpenStreetMap contributors',
-        tileSize: 512,
-        zoomOffset: -1,
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         minZoom: 2,
-        maxZoom: 19
+        maxZoom: 19,
+        maxNativeZoom: 19
       }).addTo(map);
 
       points.forEach((point) => {
@@ -978,20 +1008,9 @@ document.addEventListener('DOMContentLoaded', function () {
       setTimeout(() => map.invalidateSize(), 250);
     }).catch(() => {
       mapContainer.dataset.ready = 'false';
-      mapContainer.innerHTML = '<div class="map-load-error">Map unavailable. Please check your connection or map token.</div>';
+      mapContainer.innerHTML = '<div class="map-load-error">Map library unavailable. Check your internet connection and reload.</div>';
     });
   }
-
-  googleAuthButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const chooserUrl = `https://accounts.google.com/AccountChooser?service=mail&authuser=-1&continue=${encodeURIComponent('https://mail.google.com/mail/')}`;
-      const googleWindow = window.open(chooserUrl, '_blank', 'noopener,noreferrer,width=520,height=720');
-      if (googleWindow) googleWindow.focus();
-
-      const messageId = button.dataset.googleAuth === 'signup' ? 'registerMessage' : 'loginMessage';
-      showMessage(document.getElementById(messageId), 'Choose a Google account to continue.', true);
-    });
-  });
 
   const resetPasswordForm = document.getElementById('resetPasswordForm');
   if (resetPasswordForm) {
@@ -1613,12 +1632,11 @@ document.addEventListener('DOMContentLoaded', function () {
       const bounds = L.latLngBounds(finalPoints.map((point) => [point.lat, point.lng]));
       const map = L.map(mapContainer, { zoomControl: true, scrollWheelZoom: true }).fitBounds(bounds, { padding: [24, 24] });
 
-      L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${OPENMAPS_TOKEN}`, {
-        attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; OpenStreetMap contributors',
-        tileSize: 512,
-        zoomOffset: -1,
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         minZoom: 2,
-        maxZoom: 19
+        maxZoom: 19,
+        maxNativeZoom: 19
       }).addTo(map);
 
       finalPoints.forEach((point) => {
@@ -1629,7 +1647,7 @@ document.addEventListener('DOMContentLoaded', function () {
       mapContainer.dataset.ready = 'true';
       setTimeout(() => map.invalidateSize(), 250);
     }).catch(() => {
-      mapContainer.innerHTML = '<div class="map-load-error">Map unavailable. Please check your connection or token.</div>';
+      mapContainer.innerHTML = '<div class="map-load-error">Map library unavailable. Check your internet connection and reload.</div>';
     });
   }
 

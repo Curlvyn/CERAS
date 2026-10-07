@@ -39,19 +39,12 @@ Deployment
    - `FIRE_PASSWORD`
    - `AMBULANCE_PASSWORD`
    - `NADMO_PASSWORD`
-6. Set up Google sign-in:
-   - Open [Google Cloud Credentials](https://console.cloud.google.com/apis/credentials), select or create a project, and configure the Google Auth Platform consent screen.
-   - Create an OAuth client ID with application type **Web application**.
-   - Add `https://curlvyn.github.io` under **Authorized JavaScript origins**. For local development, also add `http://localhost:5173`. Do not add `/CERAS/` or a redirect URI; this app uses the Google Identity Services popup flow.
-   - Copy the client ID (it ends in `.apps.googleusercontent.com`). The client ID is not a client secret.
-7. Set the client ID in both places, exactly the same:
-   - Render service environment: `GOOGLE_CLIENT_ID`
-   - GitHub repository **Settings → Secrets and variables → Actions → New repository secret**: name it `VITE_GOOGLE_CLIENT_ID`
-8. Add the Render URL as the GitHub Actions repository secret `VITE_API_URL`.
-9. Enable GitHub Pages with source set to GitHub Actions.
-10. Save the Render environment variables and redeploy the backend. In GitHub, open **Actions → Deploy GitHub Pages → Run workflow** (or push to `main`) to rebuild and publish the frontend with the client ID.
+6. Configure persistent storage for the backend. The JSON store contains accounts, reports, and audit records; without a persistent Render disk or database, this data can be lost on restart or redeploy. For a Render disk mounted at `/var/data`, set `DATA_FILE=/var/data/store.json`.
+7. Add the Render URL as the GitHub Actions repository secret `VITE_API_URL`.
+8. Enable GitHub Pages with source set to GitHub Actions.
+9. Save the Render environment variables and redeploy the backend. In GitHub, open **Actions → Deploy GitHub Pages → Run workflow** (or push to `main`) to rebuild and publish the frontend.
 
-If Google's consent screen is still in testing mode, add the Google account you will use as a test user in the Google Auth Platform audience settings.
+Maps use Leaflet from unpkg and OpenStreetMap tiles, so map views require an internet connection. The admin dashboard centers on Ghana even before GPS-tagged reports are submitted; individual incident markers require reports with GPS coordinates.
 
 Demo accounts
 
@@ -61,7 +54,7 @@ Demo accounts
 - `ambulance@ceras.com` / value of `AMBULANCE_PASSWORD`
 - `nadmo@ceras.com` / value of `NADMO_PASSWORD`
 
-Note: the backend currently stores demo data in `backend/data/store.json`. For production, use a real database such as Postgres.
+Note: the backend currently stores demo data and account creation records in the JSON file selected by `DATA_FILE` (default: `backend/data/store.json`), under `users` and `auditLogs`. For production, use a managed database such as Postgres and establish an appropriate retention policy for personal account details.
 
 To create a password locally, use a password manager or run:
 

@@ -5,7 +5,6 @@ import { dirname, resolve } from 'node:path';
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = process.env.DATA_FILE ? resolve(process.env.DATA_FILE) : resolve('backend/data/store.json');
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGIN || '')
   .split(',')
   .map((origin) => origin.trim())
@@ -111,44 +110,20 @@ function createUser({ name, email, password, role = 'user' }) {
   };
 }
 
-function createGoogleUser({ name, email }) {
-  return {
+function recordAuditEvent(eventType, details = {}) {
+  if (!Array.isArray(store.auditLogs)) {
+    store.auditLogs = [];
+  }
+
+  const event = {
     id: randomBytes(8).toString('hex'),
-    name: name || email.split('@')[0],
-    email: email.toLowerCase(),
-    role: 'user',
-    phone: '',
-    location: '',
-    authProvider: 'google',
-    passwordHash: hashPassword(randomBytes(32).toString('hex')),
-    createdAt: new Date().toISOString()
+    eventType,
+    createdAt: new Date().toISOString(),
+    ...details
   };
-}
 
-async function verifyGoogleCredential(credential) {
-  if (!GOOGLE_CLIENT_ID) {
-    throw new Error('Google sign-in is not configured.');
-  }
-  if (!credential) {
-    throw new Error('Google credential is required.');
-  }
-
-  const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
-  const profile = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(profile.error_description || 'Google credential could not be verified.');
-  }
-  if (profile.aud !== GOOGLE_CLIENT_ID) {
-    throw new Error('Google credential was issued for a different app.');
-  }
-  if (profile.email_verified !== 'true' && profile.email_verified !== true) {
-    throw new Error('Google email is not verified.');
-  }
-
-  return {
-    email: String(profile.email || '').toLowerCase(),
-    name: profile.name || profile.email
-  };
+  store.auditLogs.unshift(event);
+  return event;
 }
 
 function isStrongPassword(password) {
@@ -196,10 +171,15 @@ function loadStore() {
   } catch {
     store = {
       users: defaultUsers.map(createUser),
-      reports: []
+      reports: [],
+      auditLogs: []
     };
     saveStore(store);
   }
+
+  if (!Array.isArray(store.auditLogs)) store.auditLogs = [];
+  if (!Array.isArray(store.reports)) store.reports = [];
+
   if (ensureSeedUsers(store)) saveStore(store);
   return store;
 }
@@ -266,7 +246,7 @@ const server = createServer(async (request, response) => {
         ok: true,
         service: 'CERAS API',
         health: '/health',
-        endpoints: ['/api/register', '/api/login', '/api/google-login', '/api/session', '/api/logout', '/api/profile', '/api/reports', '/api/admin/summary']
+        endpoints: ['/api/register', '/api/login', '/api/session', '/api/logout', '/api/profile', '/api/reports', '/api/admin/summary', '/api/admin/audit-log']
       }, origin);
       return;
     }
@@ -292,6 +272,13 @@ const server = createServer(async (request, response) => {
       }
       const user = createUser({ name, email, password });
       store.users.push(user);
+      recordAuditEvent('account_created', {
+        userId: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        source: 'email_registration'
+      });
       saveStore(store);
       sendJson(response, 201, { user: publicUser(user), token: createSession(user) }, origin);
       return;
@@ -308,28 +295,6 @@ const server = createServer(async (request, response) => {
         user.passwordHash = hashPassword(password);
         saveStore(store);
       }
-      sendJson(response, 200, { user: publicUser(user), token: createSession(user) }, origin);
-      return;
-    }
-
-    if (request.method === 'POST' && url.pathname === '/api/google-login') {
-      const { credential } = await readJson(request);
-      const profile = await verifyGoogleCredential(credential);
-      if (!profile.email) {
-        sendJson(response, 400, { error: 'Google account did not return an email address.' }, origin);
-        return;
-      }
-
-      let user = store.users.find((candidate) => candidate.email === profile.email);
-      if (!user) {
-        user = createGoogleUser(profile);
-        store.users.push(user);
-        saveStore(store);
-      } else if (!user.authProvider) {
-        user.authProvider = 'password';
-        saveStore(store);
-      }
-
       sendJson(response, 200, { user: publicUser(user), token: createSession(user) }, origin);
       return;
     }
@@ -391,6 +356,7 @@ const server = createServer(async (request, response) => {
         generatedAt: new Date().toISOString(),
         users: store.users.map(publicUser),
         reports: store.reports,
+        auditLogs: store.auditLogs || [],
         sessions: sessions.size,
         security: {
           passwordMinLength: PASSWORD_MIN_LENGTH,
@@ -398,6 +364,13 @@ const server = createServer(async (request, response) => {
           passwordHashIterations: PASSWORD_HASH_ITERATIONS
         }
       }, origin);
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/admin/audit-log') {
+      const admin = requireAdmin(request, response, origin);
+      if (!admin) return;
+      sendJson(response, 200, { auditLogs: store.auditLogs || [] }, origin);
       return;
     }
 

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Login | CERAS Community Emergency Response and Alert System</title>
   <link rel="stylesheet" href="css/main.css">
-  <script id="googleIdentityScript" src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
   <nav class="navbar" id="navbar">
@@ -66,7 +65,6 @@
                 <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="Enter your password">
               </div>
               <button class="btn btn-primary" type="submit">Log In</button>
-              <div class="google-auth-slot" id="googleLoginBtn" data-google-auth="signin" aria-label="Continue with Google"></div>
 
               <div class="auth-links">
                 <a href="reset-password.html" id="forgotPasswordLink">Forgot password?</a>
@@ -93,7 +91,6 @@
                 <small id="registerPasswordHelp">Use at least 14 characters, including uppercase and lowercase letters, a number, and a symbol such as ! @ # $ % ^ &amp; * - _ + =. Avoid password, admin, CERAS, 123456, or qwerty.</small>
               </div>
               <button class="btn btn-primary" type="submit">Create account</button>
-              <div class="google-auth-slot" id="googleSignupBtn" data-google-auth="signup" aria-label="Sign up with Google"></div>
               <p class="auth-signin-cta">
                 Already have an account? <a href="#" id="loginFromRegisterLink">Log in</a>
               </p>
@@ -131,11 +128,6 @@
       import.meta.env.VITE_API_URL ||
       'http://localhost:3000'
     ).replace(/\/$/, '');
-    const GOOGLE_CLIENT_ID = (
-      window.CERAS_GOOGLE_CLIENT_ID ||
-      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-      ''
-    ).trim();
 
     // --- Tab Switcher Logic ---
     const tabLoginBtn = document.getElementById('tabLoginBtn');
@@ -181,77 +173,6 @@
         !/(password|admin|ceras|123456|qwerty)/i.test(password)
       );
     }
-
-    function hideGoogleSlots() {
-      document.querySelectorAll('[data-google-auth]').forEach((slot) => {
-        slot.innerHTML = '';
-        slot.style.display = 'none';
-      });
-    }
-
-    function initGoogleAuth() {
-      const slots = document.querySelectorAll('[data-google-auth]');
-      if (!slots.length) return;
-
-      if (!GOOGLE_CLIENT_ID) {
-        hideGoogleSlots();
-        return;
-      }
-
-      if (!window.google?.accounts?.id) {
-        hideGoogleSlots();
-        return;
-      }
-
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        ux_mode: 'popup',
-        callback: handleGoogleCredential
-      });
-
-      slots.forEach((slot) => {
-        slot.innerHTML = '';
-        window.google.accounts.id.renderButton(slot, {
-          theme: 'outline',
-          size: 'large',
-          width: Math.min(slot.offsetWidth || 320, 400),
-          text: slot.dataset.googleAuth === 'signup' ? 'signup_with' : 'continue_with'
-        });
-      });
-    }
-
-    const googleIdentityScript = document.getElementById('googleIdentityScript');
-    googleIdentityScript.addEventListener('load', initGoogleAuth);
-    googleIdentityScript.addEventListener('error', () => {
-      hideGoogleSlots();
-    });
-
-    async function handleGoogleCredential(response) {
-      const activeTab = registerBox.style.display === 'block' ? 'registerMessage' : 'loginMessage';
-      const messageDiv = document.getElementById(activeTab);
-      setMessage(messageDiv, 'Signing in with Google...', 'orange');
-
-      try {
-        const apiResponse = await fetch(`${BACKEND_URL}/api/google-login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ credential: response.credential })
-        });
-        const data = await apiResponse.json();
-        if (!apiResponse.ok) {
-          setMessage(messageDiv, data.error || 'Google sign-in failed.', 'red');
-          return;
-        }
-        localStorage.setItem('ceras_user', JSON.stringify(data.user));
-        if (data.token) localStorage.setItem('ceras_token', data.token);
-        setMessage(messageDiv, 'Success! Redirecting...', 'green');
-        routeUserByRole(data.user);
-      } catch {
-        setMessage(messageDiv, 'Google sign-in could not reach the CERAS API.', 'red');
-      }
-    }
-
-    initGoogleAuth();
 
     // --- Role Redirection Router ---
     function routeUserByRole(user) {

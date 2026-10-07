@@ -2042,6 +2042,28 @@ button {
 .admin-priority-item small {
   color: var(--ceras-text-muted);
 }
+.admin-audit-list {
+  display: grid;
+  gap: 12px;
+}
+.admin-audit-item {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.02);
+}
+.admin-audit-item strong {
+  font-size: 0.98rem;
+}
+.admin-audit-item span,
+.admin-audit-item small {
+  color: var(--ceras-text-muted);
+}
+.admin-audit-item .admin-chip {
+  width: fit-content;
+}
 .admin-action-link {
   display: grid;
   gap: 5px;
@@ -2166,29 +2188,6 @@ button {
   margin-top: 12px;
   min-height: 1.5rem;
   font-weight: 600;
-}
-.google-login {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  font-weight: 700;
-}
-.google-logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--ceras-white);
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
-}
-.google-logo svg {
-  width: 18px;
-  height: 18px;
-  display: block;
 }
 .agency-portal {
   display: grid;
